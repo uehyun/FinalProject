@@ -34,11 +34,6 @@
 								<li><a href="index.html">Home 1 (Modern)</a></li>
 								<li><a href="index-2.html">Home 2 (Default)</a></li>
 								<li><a href="index-3.html">Home 3 (Airbnb)</a></li>
-								<li><a href="index-4.html">Home 4 (Creative)</a></li>
-								<li><a href="index-5.html">Home 5 (Slider)</a></li>
-								<li><a href="index-6.html">Home 6 (Map)</a></li>
-								<li><a href="index-7.html">Home 7 (Video)</a></li>
-								<li><a href="index-8.html">Home 8 (Classic)</a></li>
 							</ul>
 						</li>
 						<li><a href="#">여행 커뮤니티</a>
@@ -50,36 +45,11 @@
 										<li><a href="#">Full Width + Map</a></li>
 									</ul>
 								</li>
-								<li><a href="#">Grid Layout</a>
-									<ul>
-										<li><a href="#">With Sidebar 1</a></li>
-										<li><a href="#">With Sidebar 2</a></li>
-										<li><a href="#">Full Width</a></li>
-										<li><a href="#">Full Width + Map</a></li>
-									</ul>
-								</li>
-								<li><a href="#">Half Screen Map</a>
-									<ul>
-										<li><a href="#">List Layout</a></li>
-										<li><a href="#">Grid Layout 1</a></li>
-										<li><a href="#">Grid Layout 2</a></li>
-									</ul>
-								</li>
 								<li><a href="#">Single Listings</a>
 									<ul>
 										<li><a href="#">Single Listing 1</a></li>
 										<li><a href="#">Single Listing 2</a></li>
 										<li><a href="#">Single Listing 3</a></li>
-									</ul>
-								</li>
-								<li><a href="#">Open Street Map</a>
-									<ul>
-										<li><a href="#">Half Screen Map List Layout</a></li>
-										<li><a href="#">Half Screen Map Grid Layout 1</a></li>
-										<li><a href="#">Half Screen Map Grid Layout 2</a></li>
-										<li><a href="#">Full Width List</a></li>
-										<li><a href="#">Full Width Grid</a></li>
-										<li><a href="#">Single Listing</a></li>
 									</ul>
 								</li>
 							</ul>
@@ -91,12 +61,6 @@
 								<li><a href="#">Messages</a></li>
 								<li><a href="#">Bookings</a></li>
 								<li><a href="#">Wallet</a></li>
-								<li><a href="#">My Listings</a></li>
-								<li><a href="#">Reviews</a></li>
-								<li><a href="#">Bookmarks</a></li>
-								<li><a href="#">Add Listing</a></li>
-								<li><a href="#">My Profile</a></li>
-								<li><a href="#">Invoice</a></li>
 							</ul>
 						</li>
 

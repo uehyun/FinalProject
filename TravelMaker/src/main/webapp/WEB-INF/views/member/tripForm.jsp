@@ -104,7 +104,8 @@ input[type="text"] {
 				    </div>
 				</div>
 				<div id="btnArea">
-					<input type="button" value="저장하기" id="btnSave"/>
+					<input type="button" value="저장하기" id="btnSave"/><br/>
+					<input type="button" value="전송하기" id="btnSend"/>
 				</div>
 				<div id="placeLocation" ondrop='drop(event)' ondragover='allowDrop(event)'></div>
 				
@@ -119,14 +120,44 @@ var markers = [];
 const tripList = [];
 
 const btnSave = document.querySelector("#btnSave");
-const placeLocation = document.querySelector("#placeLocation");
+const btnSend = document.querySelector("#btnSend");
 
-btnSave.addEventListener("click",function(){
-	console.log(placeLocation);
+// 전송하기 버튼 눌렀을 때 controller로 데이터 전송
+btnSend.addEventListener("click",function(){
+    $.ajax({
+        url : "/member/addTrip",
+        type : "put",
+        headers : {
+            "X-HTTP-Method-Override" : "PUT"
+        },
+        data : JSON.stringify(tripList),
+        contentType : "application/json; charset=utf-8",
+        success : function(result) {
+            console.log("result : " + result);
+            if(result === "SUCCESS") {
+            	alert("성공");
+            }
+        }
+    });
 });
 
 
 
+// 경로 배열에 저장하기
+btnSave.addEventListener("click",function(){
+	// 기존 배열 지우기
+	if(tripList.length > 0) {
+	    tripList.length = 0;
+	}
+    var placeList = document.querySelectorAll(".location");
+    
+    for(let i=0; i<placeList.length; i++) {
+        var obj = placeList[i].dataset.place;
+        pl = JSON.parse(obj);
+        tripList.push(pl)
+    }
+    console.log(tripList);
+});
 
 var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
     mapOption = {
@@ -268,8 +299,23 @@ function getListItem(index, places) {
     // 검색하고 div 추가
     el.addEventListener('click', function () {
     	if(confirm("추가 하시겠습니까?")) {
+            var pla = {
+                name : places.place_name,
+                url : places.place_url,
+                category : places.category_group_name,
+                phone : places.phone,
+                x : places.x,
+                y : places.y
+            }
+            tripList.push(pla);
+
+            console.log(tripList)
+
+            var pl = JSON.stringify(pla);
 	    	var location = document.createElement('div');
+            var placeLocation = document.querySelector("#placeLocation");
 	    	location.className = 'location';
+            location.dataset["place"] = pl;
 	    	location.id = places.id;
 	    	location.draggable = true;
 	    	location.addEventListener('dragstart', drag);
@@ -278,11 +324,8 @@ function getListItem(index, places) {
 	    	placeInfo.innerHTML = places.place_name + "<br/>";
 	    	placeInfo.innerHTML += places.category_group_name + "<br/>";
 	    	placeInfo.innerHTML += places.phone;
-	    	placeInfo.innerHTML += "<input type='hidden' data-name='"+ places.place_name +"'/>";
 	    	location.appendChild(placeInfo);
 	    	placeLocation.appendChild(location);
-	    	
-	    	
 
 			location.addEventListener('click', function(){
 				location.href=places.place_url;

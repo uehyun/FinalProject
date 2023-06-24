@@ -17,17 +17,6 @@
 
 </head>
 <body>
-<div id="wrapper">
-	<div id="dashboard">
-		<tiles:insertAttribute name="memberHeader"/>
-	
-		<tiles:insertAttribute name="content"/>
-		
-		<tiles:insertAttribute name="memberSidebar"/>
-	</div>
-</div>
-
-
 <!-- Scripts
 ================================================== -->
 <script type="text/javascript" src="${pageContext.request.contextPath }/resources/scripts/jquery-3.6.0.min.js"></script>
@@ -42,5 +31,16 @@
 <script type="text/javascript" src="${pageContext.request.contextPath }/resources/scripts/jquery-ui.min.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath }/resources/scripts/tooltips.min.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath }/resources/scripts/custom.js"></script>
+<div id="wrapper">
+	<div id="dashboard">
+		<tiles:insertAttribute name="memberHeader"/>
+	
+		<tiles:insertAttribute name="content"/>
+		
+		<tiles:insertAttribute name="memberSidebar"/>
+	</div>
+</div>
+
+
 </body>
 </html>
