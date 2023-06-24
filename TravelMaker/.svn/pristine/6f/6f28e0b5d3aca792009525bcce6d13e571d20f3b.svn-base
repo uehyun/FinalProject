@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.mapper.member.MemberMapper">
+	<resultMap type="member" id="memberMap">
+		<id property="memNo" column="mem_no" />
+		<result property="memNo" column="mem_no" />
+		<result property="memId" column="mem_id" />
+		<result property="memPw" column="mem_pw" />
+		<result property="memName" column="mem_name" />
+		<result property="memEmail" column="mem_email" />
+		<result property="memPhone" column="mem_phone" />
+		<result property="memProfileImg" column="mem_profileimg" />
+		<!-- <result property="memRegDate" column="mem_regdate" /> -->
+		<result property="enabled" column="enabled" />
+		<collection property="authList" ofType="auth">
+			<result property="memNo" column="mem_no" />
+			<result property="auth" column="auth" />
+		</collection>
+	</resultMap>
+	
+	<select id="readByUserId" parameterType="member" resultMap="memberMap">
+		select
+			m.mem_no, mem_id, mem_pw, mem_name, mem_email, mem_phone, enabled, a.auth
+		  from member m left outer join auth a on(m.mem_no = a.mem_no)
+		 where m.mem_id = #{memId}
+	</select>
+	
+	<select id="selectMemberBySocialId" parameterType="member" resultMap="memberMap">
+		select
+			m.mem_no, mem_id, mem_pw, mem_name, mem_email, mem_phone, enabled, a.auth
+		  from member m left outer join auth a on(m.mem_no = a.mem_no)
+		 where m.mem_id = #{memId}
+	</select>
+</mapper>
