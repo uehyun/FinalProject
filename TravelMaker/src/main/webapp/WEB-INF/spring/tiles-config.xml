@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN" "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+
+<!-- Tiles 설정 -->
+<tiles-definitions>
+	<!-- main -->
+	<definition name="mainTemplate" template="/WEB-INF/views/mainTemplate.jsp">
+		<put-attribute name="mainheader" value="/WEB-INF/views/tiles/mainHeader.jsp"></put-attribute>
+		<put-attribute name="mainfooter" value="/WEB-INF/views/tiles/mainFooter.jsp"></put-attribute>
+	</definition>
+
+	<definition name="main/*" extends="mainTemplate">
+		<put-attribute name="content" value="/WEB-INF/views/main/{1}.jsp"></put-attribute>
+	</definition>
+	
+	<definition name="member/*" extends="mainTemplate">
+		<put-attribute name="content" value="/WEB-INF/views/member/{1}.jsp"></put-attribute>
+	</definition>
+	
+	<definition name="tripboard/*" extends="mainTemplate">
+		<put-attribute name="content" value="/WEB-INF/views/tripboard/{1}.jsp"></put-attribute>
+	</definition>
+	
+	<definition name="error/*" extends="mainTemplate">
+		<put-attribute name="content" value="/WEB-INF/views/error/{1}.jsp"></put-attribute>
+	</definition>
+	<!-- main End -->
+	
+	<!-- flight -->
+	<definition name="flight/*" extends="mainTemplate">
+		<put-attribute name="content" value="/WEB-INF/views/flight/{1}.jsp"></put-attribute>
+	</definition>
+	<!-- flight End -->
+
+	<!-- host -->
+	<definition name="hostTemplate"	template="/WEB-INF/views/hostTemplate.jsp">
+		<put-attribute name="hostHeader" value="/WEB-INF/views/tiles/hostHeader.jsp"></put-attribute>
+		<put-attribute name="mainfooter" value="/WEB-INF/views/tiles/mainFooter.jsp"></put-attribute>
+	</definition>
+
+	<definition name="host/*" extends="hostTemplate">
+		<put-attribute name="content" value="/WEB-INF/views/host/{1}.jsp"></put-attribute>
+	</definition>
+	<!-- host End -->
+
+	<!-- admin -->
+	<definition name="adminTemplate" template="/WEB-INF/views/adminTemplate.jsp">
+		<put-attribute name="adminHeader" value="/WEB-INF/views/tiles/adminHeader.jsp"></put-attribute>
+		<put-attribute name="adminSidebar" value="/WEB-INF/views/tiles/adminSidebar.jsp"></put-attribute>
+	</definition>
+
+	<definition name="admin/*/*" extends="adminTemplate">
+		<put-attribute name="content" value="/WEB-INF/views/admin/{1}/{2}.jsp"></put-attribute>
+	</definition>
+	<!-- admin End -->
+</tiles-definitions>
+<!-- Tiles 설정 -->

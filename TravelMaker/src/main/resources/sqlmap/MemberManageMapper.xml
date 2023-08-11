@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.travelmaker.admin.mapper.MemberManageMapper">
+	
+	<select id="blameList" resultType="blameVO">
+		SELECT
+		    blame_no
+		    ,a.mem_no
+		    ,blame_mem
+		    ,blame_type
+		    ,blame_reason
+		    ,blame_status
+		    ,to_char(blame_date, 'yyyy-mm-dd') as blame_date
+		    ,to_char(blame_approval_date, 'yyyy-mm-dd') as blame_approval_date
+		    ,review_no
+		    ,a.acc_no      	
+		    ,board_no
+		    ,reply_no
+            ,mem_review_content
+		FROM 
+		    blame a left outer join member_review b ON(a.review_no = b.MEM_REVIEW_NO)
+		ORDER BY
+		    blame_status asc, blame_date desc
+	</select>
+	
+	<update id="okUpdate" parameterType="blameVO">
+		update 
+			blame
+		set
+			blame_status = '승인',
+			blame_approval_date = sysdate
+		where
+			blame_no = #{blameNo}
+	</update>
+	
+	<update id="noUpdate" parameterType="blameVO">
+		update 
+			blame
+		set
+			blame_status = '거절',
+			blame_approval_date = sysdate
+		where
+			blame_no = #{blameNo}
+	</update>
+
+	<select id="list" resultType="memberManageVO">
+	    select 
+		    m.mem_no,
+		    mem_id,
+		    mem_name,
+		    mem_phone,
+		    mem_email,
+		    mem_agree,
+		    to_char(mem_reg_date, 'yyyy-mm-dd') as mem_reg_date,
+		    to_char(mem_del_date, 'yyyy-mm-dd') as mem_del_date,
+		    mem_del,
+		    mem_profile_path,
+		    coalesce(b.mem_blame_count, 0) as mem_blame_count,
+		    mem_pre_language,
+		    mem_pre_currency
+		from
+		    member m
+		left join
+		    (select 
+		        mem_no, count(mem_no) as mem_blame_count
+		     from
+		        blame
+		     where
+		        blame_status = '승인'
+		     group by mem_no) b on m.mem_no = b.mem_no
+		order by
+		    mem_reg_date desc
+	</select>
+</mapper>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.travelmaker.alarm.mapper.AlarmMapper">
+	<select id="selectAlarm" parameterType="string" resultType="alarm">
+		SELECT 
+			alarm_no
+			, alarm_type
+			, alarm_content
+			, alarm_status
+			, to_char(alarm_date, 'yyyy-mm-dd') alarm_date
+			, alarm_url
+		  FROM alarm
+		 WHERE mem_no = #{memNo}
+	</select>
+	
+	<insert id="insertAlarm" parameterType="alarm">
+		INSERT INTO 
+			alarm(alarm_no, mem_no, alarm_type, alarm_status, alarm_date, alarm_url, alarm_content)
+		VALUES
+			('alarm_'||seq_alarm.nextval, #{memNo}, #{alarmType}, 1, sysdate, #{alarmUrl}, #{alarmContent}) 
+	</insert>
+	
+	<select id="selectMemberByAlarmNo" parameterType="string" resultType="string">
+		SELECT
+			mem_id
+		  FROM member a inner join alarm b ON(a.mem_no = b.mem_no)
+		 WHERE alarm_no = #{alarmNo}
+	</select>
+	
+	<select id="selectCount" parameterType="string" resultType="int">
+		SELECT
+			COUNT(alarm_no)
+		  FROM alarm
+		 WHERE mem_no = #{memNo}
+	</select>
+	
+	<delete id="deleteAlarm" parameterType="string">
+		DELETE 
+		  FROM alarm 
+		 WHERE alarm_no = #{alarmNo}
+	</delete>
+</mapper>

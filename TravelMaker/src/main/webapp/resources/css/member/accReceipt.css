@@ -1,0 +1,57 @@
+@charset "UTF-8";
+#invoice {
+	height: 120vh;
+	color: black;
+}
+
+#leftSide, #rightSide {
+	width: 48%;
+}
+
+#leftSide {
+	float: left;
+}
+
+#rightSide {
+	float: right;
+}
+
+#orderPlace {
+	padding: 20px;
+}
+
+#priceBlock, #paymentBlock, #detailBlock {
+	padding: 20px;
+	display: block;
+	border: 1px solid lightgray;
+}
+
+#totalPrice, #priceText {
+	float: right;
+}
+
+.totalPriceText, #totalPrice {
+	font-weight: bold;
+}
+
+.priceBlockSpan {
+	float: right;
+	font-weight: bold;
+}
+
+#imgBlock {
+	margin-bottom: 20px;
+}
+
+a {
+	font-weight: 1000;
+}
+
+a:hover {
+	color: red;
+}
+
+label {
+	display: inline-block;
+	width: 85px;
+}

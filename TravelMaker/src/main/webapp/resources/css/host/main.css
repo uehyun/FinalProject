@@ -1,0 +1,188 @@
+@charset "UTF-8";
+body {
+	font-family: sans-serif;
+}
+
+#dashboard {
+	background: white;
+	margin-bottom: 20px;
+	font-family: sans-serif;
+}
+
+.accBlock {
+	width: 25%;
+	border: 1px solid black;
+	height: 150px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 10px;
+	border-radius: 10px;
+	margin-left: 10px;
+}
+
+.accBlock:first-child {
+	margin-left: 0;
+}
+
+
+.accBlock p {
+	margin: 0;
+	font-size: 13px;
+	font-family: sans-serif;
+}
+
+#reservationBlock {
+	width: 100%;
+	padding: 10px;
+}
+
+.accFilter {
+	border: 1px solid rgb(221, 221, 221);
+	border-radius: 20px;
+	width: 12%;
+	height: 40px;
+	justify-content: center;
+	display: flex;
+	align-items: center;
+	margin-right: 5px;
+	color: black;
+}
+
+.accFilter:hover {
+	border: 1px solid black;
+	cursor: pointer;
+}
+
+.tipDiv {
+	margin-left: 10px;
+	display: flex;
+	text-align: center;
+	width: 25%;
+	flex-direction: column;
+	border: 1px solid rgb(221, 221, 221);
+	border-radius: 15px;
+	cursor: pointer;
+}
+
+.tipDiv:first-child {
+	margin-left: 0;
+}
+
+.tipDiv span {
+	font-weight: bold;
+	color: black;
+	margin-bottom: 10px;
+	margin-top: 10px;
+}
+
+.tipDiv img {
+	display: block;
+	width: 100%;
+	height: 300px;
+	border-radius: 15px;
+}
+
+button {
+	border: none;
+	background: none;
+	color: black;
+	text-decoration: underline;
+	height: 20px;
+	align-self: flex-end;
+	font-weight: bold;
+	font-family: sans-serif;
+}
+
+#reservationDetail {
+	background: rgb(221, 221, 221);
+	height: 200px;
+	border-radius: 10px;
+	display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#reservationDetail span {
+	color: black;
+	font-weight: bold;
+}
+
+#tableBlock {
+	background: rgb(221, 221, 221);
+	height: 200px;
+	border-radius: 10px;
+	overflow: auto;
+	padding: 5px;
+	display: flex;
+	flex-direction: column;
+}
+
+table {
+	margin: 0;
+}
+
+th {
+	color: black;
+	font-weight: bold;
+}
+
+th, td {
+	text-align: center;
+	padding: 10px;
+}
+
+table tr {
+	border-bottom: 1px solid black;
+}
+
+a {
+	font-weight: bold;
+	text-decoration: underline;
+}
+
+a:hover {
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+.accName {
+	font-size: 15px;
+	color: black;
+	font-weight: bold;
+}
+
+.errorName {
+	color: red;
+	font-weight: bold;
+}
+
+#sign-in-dialog {
+	height: 800px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	border-radius: 8px;
+}
+
+#sign-in-dialog::-webkit-scrollbar {
+	display: none;
+}
+
+.accNameInfo {
+	display: -webkit-box;
+	-webkit-line-clamp: 1;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-width: 300px;
+}
+
+.tip {
+	line-height: 23px;	
+}
+
+.tip:after {
+	line-height: 23px;
+}

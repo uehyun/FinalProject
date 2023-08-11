@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.travelmaker.chat.mapper.ChatMapper">
+
+	<select id="list" parameterType="chatRoomVO" resultType="chatRoomVO">
+		select
+		    c.chatroom_no
+		    ,c.mem_no
+		    ,c.acc_no
+		    ,ad.mem_no as host_no
+		    ,to_char(chatroom_reg_date, 'yyyy-mm-dd') as chatroom_reg_date
+		    ,chat_message_content
+		    ,m.mem_profile_path
+		    ,am.mem_profile_path as host_profile_path
+		from
+		    chatroom c
+		left join
+		    accommodation ad on ad.acc_no = c.acc_no
+		left join
+		    member m on m.mem_no = c.mem_no
+		left join
+			(select
+			    acc_no
+			    ,m.mem_profile_path
+			from
+			    accommodation ad
+			left join
+			    member m on ad.mem_no = m.mem_no) am on am.acc_no = c.acc_no
+		where
+		    1=1
+		and
+		    (ad.mem_no = #{memNo}
+		or 
+		    c.mem_no = #{memNo})
+	</select>
+	
+	<insert id="insert" parameterType="chatRoomVO" useGeneratedKeys="true">
+		<selectKey keyProperty="chatroomNo" resultType="String" order="BEFORE">
+			select 'chat_'||seq_chat.nextval from dual
+		</selectKey>
+		insert into chatroom (
+			chatroom_no, mem_no, acc_no, chatroom_reg_date
+		) values (
+			#{chatroomNo}, #{memNo}, #{accNo}, sysdate
+		)
+	</insert>
+	
+	<select id="selectOne" parameterType="chatRoomVO" resultType="chatRoomVO">
+		select
+			chatroom_no
+			,c.mem_no
+			,ad.acc_no
+			,chatroom_reg_date
+			,chat_message_content
+		from
+			chatroom c
+		left join
+			accommodation ad on ad.acc_no = c.acc_no
+		where
+			ad.acc_no = #{accNo}
+		and
+			(ad.mem_no = #{memNo} or c.mem_no = #{memNo})
+	</select>
+	
+	<update id="update" parameterType="chatRoomVO">
+		update
+			chatroom
+		set
+			chat_message_content = #{message}
+			,chatroom_reg_date = sysdate
+		where
+			chatroom_no = #{chatroomNo}
+	</update>
+	
+	<select id="getAccReservation" parameterType="map" resultType="map">
+		SELECT
+			a.ares_no
+			, a.mem_no
+			, c.mem_id
+			, c.mem_name
+			, c.mem_email
+			, c.mem_phone
+			, c.mem_profile_path
+			, a.acc_no
+			, to_char(ares_checkin_date, 'yyyy-mm-dd')	AS ares_checkin_date
+			, to_char(ares_checkout_date, 'yyyy-mm-dd') AS ares_checkout_date
+			, ares_guest_count
+			, ares_extra_guest
+			, ares_request
+			, to_char(ares_reg_date, 'yyyy-mm-dd')      AS ares_reg_date
+			, ares_acc_date_count
+			, ares_checkin
+			, ares_checkout
+			, payment_total_price
+			, payment_no
+		  FROM acc_reservation a inner join payment b ON(a.ares_no = b.ares_no)
+		  						 inner join member c ON(a.mem_no = c.mem_no)
+		 WHERE a.acc_no = #{accNo} and a.mem_no = #{memNo}
+	</select>
+	
+	<select id="getAccData" parameterType="map" resultType="map">
+		SELECT
+			b.mem_no			 AS host_no
+			, b.mem_id			 AS host_id
+			, b.mem_name		 AS host_name
+			, b.mem_email		 AS host_email
+			, b.mem_phone		 AS host_phone
+			, b.mem_profile_path AS host_profile_path
+			, a.acc_att_group_no AS acc_att_group_no
+			, acc_no
+			, acc_name
+			, acc_postcode
+			, acc_location
+			, acc_price
+			, acc_standard_checkin		
+			, acc_standard_checkout
+			, acc_appropriate_people	
+		  FROM accommodation a inner join member b on(a.mem_no = b.mem_no)
+		 WHERE acc_no = #{accNo}
+	</select>
+</mapper>

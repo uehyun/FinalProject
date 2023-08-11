@@ -1,0 +1,31 @@
+@charset "UTF-8";
+#shgpreDiv .updateATag:hover {
+	color:#39d9c8; 
+	transition:all .3s ease
+}
+
+#shgpreDiv .hgSpanTag {
+	font-weight: bold;
+	display: inline-block;
+	font-size: 1.7rem;
+	margin-top: 20px;
+}
+
+#shgpreDiv .shgBtn {
+	margin-botton: 30px;
+	width: 80px;
+	height: 50px;
+	font-size: 2rem;
+	background-color: #008489;
+	color: white;
+	border: none;
+}
+
+#myShgCurrency {
+	margin-left: 50px;
+	border: 1px solid lightgray;
+	position: fixed;
+	display: inline-block;
+	width: 20%;
+	padding: 20px;
+}

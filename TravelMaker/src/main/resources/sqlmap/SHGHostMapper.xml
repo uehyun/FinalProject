@@ -1,0 +1,492 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.travelmaker.host.mapper.SHGHostMapper">
+	<resultMap type="acommodationVO" id="accMap">
+		<id property="accNo" column="acc_no" />
+		<result property="accNo" column="acc_no" />
+		<result property="accPrice" column="acc_price" />
+		<result property="accCategory" column="acc_category" />
+		
+		<collection property="invalidDate" ofType="string">
+			<result property="invalidDate" column="invalid_date" />
+		</collection>
+		
+		<collection property="eventList" ofType="event">
+			<result property="discountType" column="discount_type" />
+			<result property="discountRate" column="discount_rate" />
+		</collection>
+		
+		<collection property="accReservationList" ofType="accreservation">
+			<id property="aresNo" column="ares_no" />
+			<result property="aresNo" column="ares_no" />
+			<result property="aresCheckinDate" column="ares_checkin_date" />
+			<result property="aresCheckoutDate" column="ares_checkout_date" />
+		</collection>
+	</resultMap>
+	
+	<resultMap type="acommodationVO" id="accFilter">
+		<id property="accNo" column="acc_no" />
+		<result property="accNo" column="acc_no" />
+		<result property="accName" column="acc_name" />
+		<result property="accCount" column="acc_count" />
+		<result property="accStatus" column="acc_status" />
+		<result property="accRegDate" column="acc_reg_date" />
+		<result property="accRejectComment" column="acc_reject_comment" />
+		
+		<collection property="files" ofType="fileVO">
+			<id property="attNo" column="att_no" />
+			<result property="attNo" column="att_no" />
+			<result property="attPath" column="att_path" />
+		</collection>
+		
+		<collection property="accOption" ofType="accoptionVO">
+			<id property="optionNo" column="option_no" />
+			<result property="optionNo" column="option_no" />
+			<result property="optionCount" column="option_count" />
+		</collection>
+	</resultMap>
+	
+	<sql id="withFilter">
+		<if test="accNo != null and accNo != ''">
+			AND a.acc_no = #{accNo}
+		</if>
+		
+		<if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+			AND to_char(ares_reg_date, 'yyyy-mm-dd') BETWEEN #{startDate} AND #{endDate}
+		</if>
+	</sql>
+	
+	<sql id="onlyDate">
+		<if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+			AND to_char(ares_reg_date, 'yyyy-mm-dd') BETWEEN #{startDate} AND #{endDate}
+		</if>
+	</sql>
+	
+	<sql id="eventFilter">
+		<choose>
+			<when test="eventNo != null and eventNo != ''">
+				AND event_no = #{eventNo}
+			</when>
+			<otherwise>
+				AND option_no = #{category}
+			</otherwise>
+		</choose>
+	</sql>
+	
+	<!-- 메인 -->
+	<select id="selectValidAcc" parameterType="map" resultType="acommodationVO">
+		SELECT 
+		    acc_no
+		    , acc_name
+		  FROM accommodation 
+		 WHERE mem_no = #{memNo}
+		   AND acc_count = '10'
+		 ORDER BY acc_no
+	</select>
+	
+	<select id="selectInvalidAcc" parameterType="string" resultType="acommodationVO">
+		SELECT
+			 '대기' acc_status
+			, acc_no
+			, acc_name
+			, acc_reject_comment
+		  FROM accommodation
+		 WHERE mem_no = #{memNo}
+		   AND acc_count = 9
+		   AND acc_status = '비활성'
+        UNION ALL
+        SELECT 
+        	 '미완성' acc_status
+        	 , acc_no
+        	 , acc_name
+        	 , acc_reject_comment
+          FROM accommodation
+         WHERE mem_no = #{memNo}
+         <![CDATA[ 
+           AND acc_count < 9
+         ]]>
+        UNION ALL
+        SELECT 
+        	 '거절' acc_status
+        	 , acc_no
+        	 , acc_name
+        	 , acc_reject_comment
+          FROM accommodation
+         WHERE mem_no = #{memNo}
+           AND acc_count = 9 
+           AND acc_status = '거절'
+         ORDER BY acc_no
+	</select>
+	
+	<select id="selectAres" parameterType="map" resultType="accreservation">
+		SELECT 
+		    c.mem_name
+		    , c.mem_phone
+		    , c.mem_email
+		    , a.acc_name
+		    , to_char(b.ares_checkin_date, 'yyyy-mm-dd') ||' '|| b.ares_checkin		AS ares_checkin_date
+		    , to_char(b.ares_checkout_date, 'yyyy-mm-dd') ||' '|| b.ares_checkout   AS ares_checkout_date
+		  FROM accommodation a inner join acc_reservation b ON(a.acc_no = b.acc_no)
+		                       inner join member c          ON(b.mem_no = c.mem_no)
+		 WHERE a.mem_no = #{memNo}
+	 	<if test="type == 'checkin'">
+	 		AND ares_checkin_date BETWEEN sysdate AND sysdate+1
+	 	</if>
+	 	
+	 	<if test="type == 'checkout'">
+	 		AND ares_checkout_date BETWEEN sysdate AND sysdate+1
+	 	</if>
+	 	 
+	 	<if test="type == 'hosting'">
+	 		AND sysdate BETWEEN ares_checkin_date AND ares_checkout_date
+	 	</if>
+	</select>
+	<!-- 메인 -->
+	
+	<!-- 숙소 관리 -->
+	<select id="selectAccWithOption" parameterType="map" resultMap="accFilter">
+		SELECT a.*
+		  FROM (
+		  	SELECT DISTINCT
+				a.acc_no
+				, acc_name
+				, acc_count
+				, acc_status
+				, to_char(acc_reg_date, 'yyyy-mm-dd') AS acc_reg_date
+				, att_no
+				, att_path
+				, acc_reject_comment 
+			  FROM accommodation a left outer join acc_option b ON(a.acc_no = b.acc_no)
+			  					   left outer join attach c on(a.acc_att_group_no = c.att_group_no)
+			 WHERE mem_no = #{memNo}
+			   AND a.acc_no IN (
+			       SELECT acc_no
+			         FROM acc_option
+			        <![CDATA[ 
+			        WHERE option_no = 'con_002' AND option_count >= #{bedRoom}
+				    ]]>
+			   )
+			   AND a.acc_no IN (
+			       SELECT acc_no
+			         FROM acc_option
+			        <![CDATA[ 
+			        WHERE option_no = 'con_003' AND option_count >= #{bed}
+				    ]]>
+			   )
+			   AND a.acc_no IN (
+			       SELECT acc_no
+			         FROM acc_option
+			         <![CDATA[ 
+			         WHERE option_no = 'con_004' AND option_count >= #{bathRoom}
+			         ]]>
+			   )) a
+	     ORDER BY a.acc_no, to_number(att_no)	
+	</select>
+	
+	<select id="selectAccWithFilter" parameterType="map" resultMap="accFilter">
+		SELECT
+		    a.acc_no
+		    , option_no
+		    , option_count
+		  FROM accommodation a inner join acc_option b ON(a.acc_no = b.acc_no)
+		 WHERE mem_no = #{memNo}
+	     <if test="checkArray != null and checkArray.size() != 0">
+	     	 AND a.acc_no IN (
+                 SELECT acc_no
+                   FROM acc_option
+                  WHERE option_no IN
+             (
+             <foreach collection="checkArray" item="option" separator=",">
+             	#{option.optionNo}
+             </foreach>
+             ))
+	     </if>
+	     <if test="statusArray != null and statusArray.size() != 0">
+	         AND (
+	            <foreach item="statusItem" collection="statusArray" separator="OR">
+              		<if test="statusItem.accStatus == '활성'">
+                		(acc_status = '활성' and acc_count = 10)
+              		</if>
+              		<if test="statusItem.accStatus == '비활성'">
+                		(acc_status = '비활성' and acc_count = 10)
+              		</if>
+              		<if test="statusItem.accStatus == '미완성'">
+              			<![CDATA[ 
+                		acc_count <= 9 
+                		]]>
+              		</if>
+		        </foreach>
+	         )
+	     </if>
+	     <if test="search != null and search != ''">
+	     	AND acc_name LIKE '%'||#{search}||'%'
+	     </if>
+	</select>
+	
+	<update id="updateAccActive" parameterType="map">
+		UPDATE accommodation
+		   SET acc_status = #{type}
+		 WHERE acc_no = #{accNo}
+	</update>
+	<!-- 숙소 관리 -->
+	
+	
+	<!-- 매출 -->
+	<select id="getAllSalesAmount" parameterType="map" resultType="map">
+		SELECT 
+			nvl(SUM(ares_total_price), 0) 		 		AS TOTALPRICE
+			, nvl(ROUND(SUM(ares_total_price)*0.92), 0) AS TOTALREVENUE
+			, nvl(COUNT(ares_no), 0) 			 		AS TOTALCOUNT
+		  FROM acc_reservation a inner join accommodation b ON(a.acc_no = b.acc_no) 
+		 WHERE b.mem_no = #{memNo} <include refid="withFilter"></include>	
+	</select>
+	
+	<select id="avgReservation" resultType="map" parameterType="map">
+		SELECT 
+			nvl(ROUND(AVG(COUNT(ares_no))), 0) 		 	AS AVGCOUNT
+			, nvl(ROUND(AVG(SUM(ares_total_price))), 0) AS AVGPRICE
+		  FROM acc_reservation
+		 WHERE 1 = 1 <include refid="onlyDate"></include> 
+		 GROUP BY acc_no	
+	</select>
+	
+	<select id="getPieChartData" parameterType="map" resultType="map">
+		SELECT 
+			a.acc_no				AS ACCNO
+			, b.acc_name			AS ACCNAME
+			, SUM(ares_total_price) AS PIECHARTDATA  
+		  FROM acc_reservation a inner join accommodation b ON(a.acc_no = b.acc_no) 
+		 WHERE b.mem_no = #{memNo} <include refid="withFilter"></include>
+		 GROUP BY a.acc_no, b.acc_name
+	</select>
+	
+	<select id="selectReservationList" parameterType="map" resultType="map">
+		SELECT
+			ares_no								   				AS aresno
+			, a.mem_no							   				AS memno
+			, c.mem_id							   				AS memid
+			, c.mem_profile_path								AS memprofilepath
+			, a.acc_no							   				AS accno
+			, ares_total_price					   				AS total
+			, ROUND(ares_total_price * 0.08)	   				AS fee
+			, ROUND(ares_total_price * 0.92) + ares_extra_price AS earning
+			, ares_extra_price									AS extra
+			, to_char(ares_reg_date, 'yyyy-mm-dd') 				AS aresregdate
+			, b.acc_name						   				AS accname
+			, to_char(a.ares_checkin_date, 'yyyy-mm-dd')		AS checkin
+			, to_char(a.ares_checkout_date, 'yyyy-mm-dd')		AS checkout
+		  FROM acc_reservation a inner join accommodation b    ON(a.acc_no = b.acc_no)
+		  						 inner join member c 		   ON(a.mem_no = c.mem_no)
+		 WHERE b.mem_no = #{memNo} <include refid="withFilter"></include>
+		 ORDER BY ares_reg_date 
+	</select>
+	
+	<select id="getAvgGraphChartData" resultType="map" parameterType="map">
+		SELECT 
+			b.yearmonth                  AS AVGMONTH
+			, NVL(a.allaccavgprice, 0)   AS AVGPRICE
+			, NVL(a.myaccavgprice, 0)    AS MYAVGPRICE
+  		  FROM (
+                SELECT 
+                	a.yearmonth
+                	, a.avgprice         AS allaccavgprice
+                	, b.avgprice         AS myaccavgprice
+                  FROM (
+                        SELECT 
+                        	to_char(ares_reg_date, 'yyyy-mm') AS yearmonth
+                        	,  ROUND(AVG(ares_total_price))   AS avgprice
+                          FROM acc_reservation a
+                         WHERE 1 = 1
+                         GROUP BY to_char(ares_reg_date, 'yyyy-mm') 
+                       ) a left outer join
+                       (
+                        SELECT 
+                        	to_char(ares_reg_date, 'yyyy-mm')  AS yearmonth
+                        	,  ROUND(AVG(ares_total_price))    AS avgprice
+                          FROM acc_reservation a inner join accommodation b ON(a.acc_no = b.acc_no) 
+                         WHERE b.mem_no = #{memNo}
+                         <if test="accNo != null and accNo != ''">
+							AND a.acc_no = #{accNo}
+						</if>
+                         GROUP BY to_char(ares_reg_date, 'yyyy-mm') 
+                       ) b ON(a.yearmonth = b.yearmonth)
+               ) a right outer join
+               (   
+             	SELECT level no1, to_char(add_months(sysdate, -1*(level-1)), 'yyyy-mm') yearmonth 
+                  FROM dual
+             <![CDATA[ 
+               CONNECT BY level <= 12) b ON(b.yearmonth = a.yearmonth)
+			 ]]>
+                 WHERE 1 = 1
+			     ORDER BY 1 asc
+	</select>
+	<!-- 매출 -->
+	
+	
+	<!-- 캘린더 -->
+	<select id="selectAccReservation" parameterType="map" resultMap="accMap">
+		SELECT
+			a.acc_no
+			, acc_price
+			, to_char(b.invalid_date, 'yyyy-mm-dd')	    AS invalid_date
+			, c.discount_type
+			, c.discount_rate
+			, ares_no
+			, to_char(ares_checkin_date, 'yyyy-mm-dd')	AS ares_checkin_date
+			, to_char(ares_checkout_date, 'yyyy-mm-dd')	AS ares_checkout_date
+			, acc_category
+		  FROM accommodation a left outer join acc_invalid_date b ON(a.acc_no = b.acc_no)
+		                       left outer join acc_discount c     ON(a.acc_no = c.acc_no)
+		                       left outer join acc_reservation d  ON(a.acc_no = d.acc_no)
+		                       left outer join acc_option e		  ON(a.acc_no = e.acc_no)
+		 WHERE a.mem_no = #{memNo} <include refid="withFilter"></include>
+		 ORDER BY DECODE(discount_type, 'WEEK', 1, 'MONTH', 2) 
+	</select>
+	
+	<select id="selectReservationDetail" parameterType="string" resultType="map">
+		SELECT
+			a.ares_no								   		AS aresno
+            , a.ares_guest_count                			AS guestcount
+            , a.ares_request								AS aresrequest
+			, a.mem_no							   			AS memno
+			, c.mem_id							   			AS memid
+            , c.mem_name                        			AS memname
+            , c.mem_email									AS mememail
+            , c.mem_phone									AS memphone
+            , c.mem_profile_path                			AS memprofilepath
+			, a.acc_no							   			AS accno
+            , b.acc_att_group_no                			AS groupno
+			, payment_total_price							AS total
+			, to_char(ares_reg_date, 'yyyy-mm-dd') 			AS aresregdate
+			, b.acc_name						       		AS accname
+			, to_char(a.ares_checkin_date, 'yyyy-mm-dd')	AS checkindate
+			, to_char(a.ares_checkout_date, 'yyyy-mm-dd')	AS checkoutdate
+			, ares_checkin									AS checkintime
+			, ares_checkout									AS checkouttime
+			, b.acc_att_group_no							AS groupno
+			, payment_no									AS paymentno
+		  FROM acc_reservation a inner join accommodation b ON(a.acc_no = b.acc_no)
+		  						 inner join member c 		ON(a.mem_no = c.mem_no)
+		  						 inner join payment d		ON(a.ares_no = d.ares_no) 
+		 WHERE a.ares_no = #{aresNo}
+	</select>
+	
+	<select id="selectInvalidDate" parameterType="map" resultType="int">
+		SELECT
+			count(acc_no)
+		  FROM acc_invalid_date
+		 WHERE to_char(invalid_date, 'yyyy-mm-dd') = #{invalidDate} AND acc_no = #{accNo}
+	</select>
+	
+	<select id="selectEvent" parameterType="map" resultType="adminEventVO">
+		SELECT
+			event_no
+			, event_title
+			, event_content
+			, to_char(event_start_date, 'yyyy-mm-dd')	AS event_start_date
+			, to_char(event_end_date, 'yyyy-mm-dd')     AS event_end_date
+			, to_char(event_reg_date, 'yyyy-mm-dd')		AS event_reg_date
+			, event_discount_rate
+			, option_no
+			event_status
+		  FROM event
+		 WHERE event_status = '활성' 
+		   <![CDATA[ 
+		   AND sysdate < event_start_date
+		   ]]>
+		   <include refid="eventFilter"></include>
+	</select>
+	
+	<insert id="insertInvalidDate" parameterType="map">
+		INSERT INTO
+			acc_invalid_date(invalid_date, acc_no)
+		VALUES(#{invalidDate}, #{accNo})
+	</insert>
+	
+	<delete id="deleteInvalidDate" parameterType="map">
+		DELETE FROM acc_invalid_date WHERE acc_no = #{accNo} and invalid_date = #{invalidDate}
+	</delete>
+	
+	<select id="selectBeforeDate" parameterType="string" resultType="string">
+		SELECT 
+			to_char(invalid_date, 'yyyy-mm-dd') 
+		  FROM acc_invalid_date 
+		 WHERE acc_no = #{accNo}
+		 <![CDATA[  
+		   AND to_char(invalid_date, 'yyyy-mm-dd') < to_char(sysdate, 'yyyy-mm-dd')
+		 ]]>
+	</select>
+	
+	<delete id="deleteBeforeDate">
+		DELETE 
+		  FROM acc_invalid_date
+		 <![CDATA[   
+		 WHERE to_char(invalid_date, 'yyyy-mm-dd') < to_char(sysdate, 'yyyy-mm-dd')
+		 ]]>
+	</delete>
+	
+	<update id="updateEvent" parameterType="map">
+		UPDATE acc_discount SET 
+			discount_rate = #{discountRate}
+		 WHERE acc_no = #{accNo} AND discount_type = #{discountType}
+	</update>
+	
+	<select id="isParticipate" parameterType="map" resultType="string">
+		SELECT
+			event_no
+		  FROM accommodation
+		 WHERE acc_no = #{accNo} 
+	</select>
+	
+	<update id="updateParticipate" parameterType="map">
+		UPDATE accommodation
+		   SET event_no = #{eventNo}
+		 WHERE acc_no = #{accNo} 
+	</update>
+	<!-- 캘린더 -->
+	
+	<!-- 실시간 인기 카테고리 -->
+	<select id="selectPopular" resultType="map">
+       SELECT
+           acc_category                                                                     AS no
+           , AVG(acc_hit) * 0.1 + nvl(SUM(reservation_count), 0) * 0.3                                    AS score
+           , ROW_NUMBER() OVER (ORDER BY (AVG(acc_hit) * 0.1 + nvl(SUM(reservation_count), 0)) * 0.3 DESC) AS rank
+         FROM(
+             SELECT
+                 a.acc_category
+                 , SUM(a.acc_hit)    AS acc_hit
+                 , COUNT(b.ares_no) AS reservation_count
+               FROM accommodation a left outer join acc_reservation b ON(a.acc_no = b.acc_no) 
+              WHERE a.acc_category IS NOT NULL
+              GROUP BY a.acc_category
+           ) 
+        GROUP BY acc_category
+    </select>
+	   
+	<update id="updateCategoryRank" parameterType="map">
+		UPDATE category_rank
+		   SET category_rank = #{RANK}
+		 WHERE category_no = #{NO}
+	</update>
+	
+	<select id="selectTopCategory" resultType="map">
+		SELECT 
+			option_no			AS optionno
+			, option_name		AS optionname
+			, att_group_no  	AS groupno
+		  FROM(
+		      SELECT option_no, option_name, category_rank, att_group_no, ROWNUM AS rnum
+		  		FROM(
+		    		SELECT option_no, option_name, category_rank, att_group_no
+		    		  FROM category_rank a inner join optionitem b ON(a.category_no = b.option_no)
+		       WHERE category_rank != 0
+		       ORDER BY category_rank)
+		  )
+		<![CDATA[
+		WHERE rnum <= 10
+		]]>
+	</select>
+</mapper>

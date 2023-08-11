@@ -1,0 +1,241 @@
+@charset "UTF-8";
+.map_wrap, .map_wrap * {margin:0;padding:0;font-family:'Malgun Gothic',dotum,'돋움',sans-serif;font-size:12px;}
+.map_wrap a, .map_wrap a:hover, .map_wrap a:active{color:#000;text-decoration: none;}
+.map_wrap {position:relative;width:100%;height:500px;}
+#menu_wrap {position:absolute;top:0;left:0;bottom:0;width:300px;margin:10px 0 30px 10px;padding:5px;overflow-y:auto;background:rgba(255, 255, 255, 0.7);z-index: 996;font-size:12px;border-radius: 10px;}
+.bg_white {background:#fff;}
+#menu_wrap hr {display: block; height: 1px;border: 0; border-top: 2px solid #5F5F5F;margin:3px 0;}
+#menu_wrap .option{text-align: center;}
+#menu_wrap .option p {margin:10px 0;}  
+#menu_wrap .option button {margin-left:5px;}
+#placesList li {height : 130px; padding : 5px; background : rgba(255, 255, 255, 0.7);}
+li .item {position:relative;border-bottom:1px solid #888;overflow: hidden;cursor: pointer;min-height: 35px;}
+li .item span {display: block;margin-top:4px;}
+li .item h5, #placesList .item .info {text-overflow: ellipsis;overflow: hidden;white-space: nowrap;}
+#placesList .item .info{padding:10px 0 10px 40px;}
+#placesList .info .gray {color:#8a8a8a;}
+li .info .jibun {padding-left:26px;background:url(https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/places_jibun.png) no-repeat;}
+#placesList .info .tel {color:#009900;}
+#placesList .item .markerbg {float:left;position:absolute;width:34px; height:35px;margin:5px 0 0 5px;background:url(https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png) no-repeat;}
+#placesList .item .marker_1 {background-position: 0 -10px;}
+#placesList .item .marker_2 {background-position: 0 -56px;}
+#placesList .item .marker_3 {background-position: 0 -102px}
+#placesList .item .marker_4 {background-position: 0 -148px;}
+#placesList .item .marker_5 {background-position: 0 -194px;}
+#placesList .item .marker_6 {background-position: 0 -240px;}
+#placesList .item .marker_7 {background-position: 0 -286px;}
+#placesList .item .marker_8 {background-position: 0 -332px;}
+#placesList .item .marker_9 {background-position: 0 -378px;}
+#placesList .item .marker_10 {background-position: 0 -423px;}
+#placesList .item .marker_11 {background-position: 0 -470px;}
+#placesList .item .marker_12 {background-position: 0 -516px;}
+#placesList .item .marker_13 {background-position: 0 -562px;}
+#placesList .item .marker_14 {background-position: 0 -608px;}
+#placesList .item .marker_15 {background-position: 0 -654px;}
+#pagination {margin:10px auto;text-align: center;}
+#pagination a {display:inline-block;margin-right:10px;}
+#pagination .on {font-weight: bold; cursor: default;color:#777;}
+/* 선 스타일 설정 */
+.dot {overflow:hidden;float:left;width:12px;height:12px;background: url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/mini_circle.png');}    
+.dotOverlay {position:relative;bottom:10px;border-radius:6px;border: 1px solid #ccc;border-bottom:2px solid #ddd;float:left;font-size:12px;padding:5px;background:#fff;}
+.dotOverlay:nth-of-type(n) {border:0; box-shadow:0px 1px 2px #888;}    
+.number {font-weight:bold;color:#ee6152;}
+.dotOverlay:after {content:'';position:absolute;margin-left:-6px;left:50%;bottom:-8px;width:11px;height:8px;background:url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/vertex_white_small.png')}
+.distanceInfo {position:relative;top:5px;left:5px;list-style:none;margin:0;}
+.distanceInfo .label {display:inline-block;width:50px;}
+.distanceInfo:after {content:none;}
+/* 선 스타일 설정 끝 */
+
+
+
+/* 스크롤바 설정 */
+#scrollDiv {
+    width : auto;
+	background-color: white;
+	position:relative;
+	display: flex;
+}
+#placeLocation {
+	width : 550px;
+	height : 600px;
+	overflow-y : scroll;
+	position:relative;
+}
+#placeLocation::-webkit-scrollbar {
+  width: 10px;
+}
+#placeLocation::-webkit-scrollbar,
+#placeLocation::-webkit-scrollbar-thumb {
+	overflow:visible;
+	border-radius: 4px;
+}
+#placeLocation::-webkit-scrollbar-thumb {
+	background: rgba(0,0,0,.2);
+}
+.cover-bar {
+	width:10px;
+	height:100%;
+	position:absolute;
+	top:0;
+	right:0;
+	-webkit-transition: all .5s;
+	opacity: 1;
+	background-color:white;
+}
+#scrollDiv:hover .cover-bar {
+   opacity: 0;
+  -webkit-transition: all .5s;
+}
+/* 스크롤바 설정 끝 */
+
+.placeSubBox{
+	display: inline-block;
+    width: 60%;
+    margin: 10px 10px;
+}
+
+div .location {
+    background-color: #f0f4ffe8;
+	width : 350px;
+	height : 100px;
+	padding : 10px;
+	margin : 5px;
+	margin-bottom : 15px;
+	border-radius : 8px;
+    position: relative;
+    z-index: 1;
+    text-align: center;
+	box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+	display: inline-block;
+	font-weight: 700;
+}
+input[type="text"] {
+	height: 35px;
+	line-height: 51px;
+	padding: 0 20px;
+	outline: none;
+	font-size: 15px;
+	color: #808080;
+	margin: 0 0 16px 0;
+	max-width: 100%;
+	width: 100%;
+	box-sizing: border-box;
+	display: block;
+	background-color: #fff;
+	border: 1px solid #dbdbdb;
+	box-shadow: 0 1px 3px 0px rgba(0, 0, 0, 0.06);
+	font-weight: 500;
+	opacity: 1;
+	border-radius: 3px;
+}
+.dashboard-list-box .button {
+	background-color: white;
+	font-size: 15px;
+	color : gray;
+	text-decoration: underline;
+}
+#btnArea {
+	margin: 15px 0px 0px 3%;
+}
+.button:hover {
+	color: red;
+}
+.spotNumber {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	color: white;
+	font-size: 25px;
+	font-weight: bold;
+	text-align: center;
+}
+/* 번호 선 잇는 거 */
+.erumNum {
+	transform:translate(-21%, 0%);
+	display: inline-block;
+}
+.connector {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: 75px;
+  transform: translateX(0%) translateY(-104%);
+  border: 2px dashed gainsboro;
+  z-index: 1;
+}
+
+.frame {
+	text-align : center;
+}
+#btnSearch {
+	display: none;
+}
+.x-icon {
+	margin-left: 5px;
+	cursor: pointer;
+	display : none;
+}
+
+/* ============================ 날짜 출력 css ====================================== */
+#dateContainer {
+	overflow-x: scroll;
+	width: auto; 
+	border-top: 1px solid gainsboro;
+	border-bottom: 1px solid gainsboro;
+	scroll-behavior: smooth;
+}
+#dateContainer::-webkit-scrollbar {
+  display: none;
+}
+
+.date-container-outer {
+  margin-bottom: 5px;
+}
+
+.date-container-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px;
+}
+
+.date {
+  padding-left : 10px;
+  font-weight: bold;
+  text-decoration: underline;
+}
+.date:hover {
+	cursor:pointer;
+	color: red;
+}
+
+.date-navigation {
+  text-align: center;
+  margin-bottom: 10px;
+  border-bottom: 1px solid gainsboro; 
+}
+
+.date-nav-button {
+  border: none;
+  background: none;
+  font-size: 20px;
+  cursor: pointer;
+  margin: 0 10px;
+}
+/* ==================================== 날짜 출력 css 끝 =========================================*/
+.close {
+	background-color: gainsboro;
+	border-radius: 50%;
+}
+.memList-img {
+	width : 65px;
+	height : 65px;
+	border-radius: 50%;
+	border : 3px white solid;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+	float : right
+}
+.read-more:hover {
+	color : red;
+}

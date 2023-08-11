@@ -1,0 +1,165 @@
+@charset "UTF-8";
+#dashboard {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-botton: 15px;
+	margin-top: 15px;
+}
+
+.booking-requests-filter {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background: none;
+}
+
+.sort-by-select,
+#booking-date-range {
+	flex: 1;
+}
+
+#booking-date-range span {
+    padding-right: 0px;
+}
+
+
+.sort-by .chosen-container-single .chosen-single {
+	height: auto;
+}
+
+.dashboard-stat-content span {
+	font-size: 17px;
+}
+
+canvas {
+    width: 100%;
+    height: 300px;
+}
+
+#gridDiv {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 388px;
+}
+
+#myGrid {
+	height: 100%;
+	width: 90%;
+}
+
+.centered {
+	.ag-header-cell-label {
+        justify-content: center !important;
+    }
+}
+
+#excelBtn {
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+#revenueCont {
+	display: none;
+}
+
+#sign-in-dialog {
+	max-width: 650px;
+	color: black;
+}
+
+#modalTable {
+	border: 1px #a39485 solid;
+	font-size: .9em;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, .25);
+	width: 100%;
+	border-collapse: collapse;
+	border-radius: 5px;
+	overflow: hidden;
+}
+
+#modalTable th {
+	text-align: left;
+}
+
+#modalTable thead {
+	font-weight: bold;
+	color: #fff;
+	background: #73685d;
+}
+
+#modalTable td, #modalTable th {
+	padding: 1em .5em;
+	vertical-align: middle;
+}
+
+#modalTable td {
+	border-bottom: 1px solid rgba(0, 0, 0, .1);
+	background: #fff;
+	padding-left : 25px;
+	font-weight: 700;
+}
+
+a {
+	color: #73685d;
+}
+
+@media all and (max-width: 768px) {
+	#modalTable table,
+	#modalTable thead,
+	#modalTable tbody,
+	#modalTable th,
+	#modalTable td,
+	#modalTable tr {
+		display: block;
+	}
+	#modalTable th {
+		text-align: right;
+	}
+	#modalTable table {
+		position: relative;
+		padding-bottom: 0;
+		border: none;
+		box-shadow: 0 0 10px rgba(0, 0, 0, .2);
+	}
+	#modalTable thead {
+		float: left;
+		white-space: nowrap;
+	}
+	#modalTable tbody {
+		overflow-x: auto;
+		overflow-y: hidden;
+		position: relative;
+		white-space: nowrap;
+	}
+	#modalTable tr {
+		display: inline-block;
+		vertical-align: top;
+	}
+	#modalTable th {
+		border-bottom: 1px solid #a39485;
+	}
+	#modalTable td {
+		border-bottom: 1px solid #e5e5e5;
+	}
+}
+
+.accName {
+	margin-top: 55px;
+	text-align: center;
+	font: 17px "Fira Sans", sans-serif;
+	font-weight: 700;
+}
+
+#memImg {
+	border: 2px solid white;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+	width: 80px;
+	height: 80px;
+	border-radius: 50%;
+}
+.accInfo {
+	background-color: #8080801f;
+}

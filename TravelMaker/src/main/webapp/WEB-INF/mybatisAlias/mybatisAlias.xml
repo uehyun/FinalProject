@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<settings>
+		<setting name="mapUnderscoreToCamelCase" value="true" />
+	</settings>
+
+	<typeAliases>
+		<!-- 회원 VO -->
+		<typeAlias type="kr.or.ddit.travelmaker.member.vo.MemberVO" alias="member" />
+		<typeAlias type="kr.or.ddit.travelmaker.member.vo.MemberAuth" alias="auth" />
+		<typeAlias type="kr.or.ddit.travelmaker.member.vo.MemberSocial" alias="social" />
+		<typeAlias type="kr.or.ddit.travelmaker.review.vo.MemberReviewVO" alias="memberReview" />
+		<typeAlias type="kr.or.ddit.travelmaker.review.vo.AccReviewVO" alias="accReview" />
+		<typeAlias type="kr.or.ddit.travelmaker.review.vo.ReviewScoreVO" alias="reviewScoreVO" />
+		<typeAlias type="kr.or.ddit.travelmaker.alarm.vo.AlarmVO" alias="alarm" />
+		<typeAlias type="kr.or.ddit.travelmaker.main.vo.WishlistCategoryVO" alias="wishlistCategoryVO"/>
+		<typeAlias type="kr.or.ddit.travelmaker.main.vo.WishlistVO" alias="wishlistVO"/>
+		<typeAlias type="kr.or.ddit.travelmaker.main.vo.PaymentVO" alias="paymentVO"/>
+		
+		<!-- 채팅 VO -->
+		<typeAlias type="kr.or.ddit.travelmaker.chat.vo.ChatRoomVO" alias="chatRoomVO"/>
+		
+		<!-- 비행기 VO -->
+		<typeAlias type="kr.or.ddit.travelmaker.flight.vo.FlightVO" alias="flightVO" />
+		
+		<!-- 여행 커뮤, 경로 VO -->
+		<typeAlias type="kr.or.ddit.travelmaker.trip.vo.TravelMemberVO" alias="travelMemberVO"/>
+		<typeAlias type="kr.or.ddit.travelmaker.trip.vo.TravelScheduleVO" alias="travelScheduleVO"/>
+		<typeAlias type="kr.or.ddit.travelmaker.trip.vo.TravelScheduleDetailVO" alias="travelScheduleDetailVO"/>
+		<typeAlias type="kr.or.ddit.travelmaker.trip.vo.TBoardVO" alias="tBoardVO"/>
+		<typeAlias type="kr.or.ddit.travelmaker.trip.vo.TBoardReplyVO" alias="tBoardReplyVO"/>
+		<typeAlias type="kr.or.ddit.travelmaker.trip.vo.TravelAccVO" alias="travelAccVO"/>
+		
+		<!-- 숙소 VO -->
+		<typeAlias type="kr.or.ddit.travelmaker.main.vo.OptionVO" alias="optionVO"/>
+		<typeAlias type="kr.or.ddit.travelmaker.accreservation.vo.AccReservationVO" alias="accreservation"/>
+		<typeAlias type="kr.or.ddit.travelmaker.host.vo.AcommodationVO" alias="acommodationVO" />
+		<typeAlias type="kr.or.ddit.travelmaker.host.vo.AccoptionVO" alias="accoptionVO" />
+		<typeAlias type="kr.or.ddit.travelmaker.host.vo.OptionitemVO" alias="optionitemVO" />
+		<typeAlias type="kr.or.ddit.travelmaker.host.vo.EventVO" alias="event" />
+		
+		
+		<!-- 관리자 VO -->
+		<typeAlias type="kr.or.ddit.travelmaker.admin.vo.MemberManageVO" alias="memberManageVO"/>
+		<typeAlias type="kr.or.ddit.travelmaker.admin.vo.HostManageVO" alias="hostManageVO"/>
+		<typeAlias type="kr.or.ddit.travelmaker.admin.vo.AdminEventVO" alias="adminEventVO"/>
+		<typeAlias type="kr.or.ddit.travelmaker.admin.vo.inquiryVO" alias="inquiryVO"/>
+		<typeAlias type="kr.or.ddit.travelmaker.admin.vo.faqVO" alias="faqVO"/>
+		<typeAlias type="kr.or.ddit.travelmaker.admin.vo.ireplyVO" alias="ireplyVO"/>
+		<typeAlias type="kr.or.ddit.travelmaker.admin.vo.BlameVO" alias="blameVO"/>
+		
+		<!-- 공통 VO -->
+		<typeAlias type="kr.or.ddit.travelmaker.utils.vo.PaginationInfoVO" alias="pagingVO"/>
+		<typeAlias type="kr.or.ddit.travelmaker.utils.vo.FileVO" alias="fileVO"/>
+	</typeAliases>
+</configuration>

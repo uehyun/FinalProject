@@ -1,0 +1,526 @@
+@charset "UTF-8";
+/* 컨테이너 CSS 화면은 무조건 80%로 봐야함 */
+.con {
+	opacity: 0; /* 초기에는 투명하게 설정 */
+	animation: fade-in-animation 1s ease-in forwards; /* 애니메이션 속성 설정 */
+}
+
+@keyframes fade-in-animation {from { opacity:0; /* 시작 시 투명 */
+	}
+	
+	to {
+		opacity: 1; /* 끝나는 시점에 불투명 */
+	}
+}
+
+/* 컨테이너 CSS 끝 */
+
+/* 상태바 CSS */
+#statusBar {
+	transition: width 0.5s ease-in-out;
+	background-color: gray !important;
+}
+
+/* footer CSS */
+footer {
+	height: 1vh;
+	background-color: white;
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	width: 100vw;
+	margin-bottom: 5rem;
+	z-index: 10;
+}
+
+@media screen and (max-height: 600px) {
+	footer {
+		position: static;
+	}
+}
+/* footer CSS End */
+.button-container {
+	display: flex;
+	justify-content: space-between;
+	background-color: white;
+	z-index: 20;
+	margin: 0;
+	height: 5.5rem;
+}
+
+.button-container>div {
+	margin: 1rem 0 1rem 5rem;
+}
+
+.button-container>div:last-child {
+	justify-content: flex-end;
+	align-items: center;
+	margin-right: 5rem;
+}
+
+.button-container button {
+	width: 6rem;
+	height: 3rem;
+}
+
+.dashboard-content {
+	margin-left: 0;
+}
+
+#dashboard {
+	min-height: 65vh;
+	background-color: white;
+}
+/* Session1 CSS */
+.container1 {
+	width: 60%;
+	margin: 2% auto;
+}
+
+.container1>div {
+	width: 81%;
+	margin: 0 auto;
+}
+
+.container1 h3 {
+	margin: 0.5rem 0;
+}
+
+.container1 textarea {
+	width: 100%;
+	padding: 0.75rem;
+	resize: none;
+}
+
+#nCharacterCount, #dCharacterCount {
+	font-size: 0.8rem;
+	margin-top: 0.5rem;
+}
+
+#accName, #accContent {
+	padding: 24px;
+	min-width: 0%;
+	min-height: 0%;
+	width: 100%;
+	height: 13rem;
+}
+/* Session1 CSS End */
+
+/* Session2 CSS */
+#container2 {
+	margin: 5% auto;
+	width: 50%;
+}
+/* Session2 CSS End */
+
+/* Session3 CSS */
+#container3 {
+	width: 40%;
+	margin: 5% auto 5% auto;
+}
+
+#container3 h2 {
+	margin: 1rem 0;
+}
+
+#container3 .description {
+	margin: 1rem 0;
+}
+
+#container3 .upload-container {
+	border: 1px dotted black;
+}
+
+#container3 .upload-container i {
+	margin: 20% 0 1% 45%;
+	font-size: 4rem;
+}
+
+#container3 .upload-container h3 {
+	margin: 1rem 0;
+	text-align: center;
+}
+
+#container3 .upload-container p {
+	margin: 1rem 0;
+	text-align: center;
+}
+
+#container3 div:nth-child(4) {
+	text-align: center;
+	margin: 0 0 15% 0;
+}
+
+#container3 .upload-container button {
+	border: none;
+	background: none;
+	text-decoration: underline;
+	cursor: pointer;
+}
+/* Session3 CSS End */
+
+/* Session4 CSS */
+.right-align {
+	text-align: right;
+	margin-left: auto;
+}
+
+#container4 {
+	width: 42%;
+	margin: 5% auto;
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+}
+
+#container4 h2 {
+	margin: 5rem 0 1.5rem 0;
+	float: left;
+}
+
+#container4 .accommodationTypeItem {
+	display: flex;
+	justify-content: space-between;
+	border: 1px solid black;
+	border-radius: 30px;
+	margin: 1.5rem 0 1.5rem 0;
+	padding: 1%;
+	width: 100%;
+}
+
+.accommodationTypeItem:hover {
+	background-color: rgba(0, 0, 0, 0.1);
+}
+
+#container4 .accommodationTypeItem div:nth-child(2) {
+	margin: 0 0 1rem 0;
+}
+
+#container4 .accommodationTypeItem>div:first-child {
+	text-align: left;
+	margin-left: 1.5rem;
+	width: 100%;
+}
+
+#container4 .accommodationTypeItem>div:first-child h2 {
+	margin: 1rem 0 1rem 0;
+}
+
+#container4 .accommodationTypeItem>div:last-child {
+	margin: 2rem;
+}
+
+#container4 .accommodationTypeItem>div:last-child i {
+	font-size: 2.5rem;
+}
+
+#container4 .accommodationTypeItem.checked {
+	background-color: #d5d5d5 !important;
+}
+
+#container4 .accommodationTypeItem {
+	transition: transform 0.1s ease-in-out;
+}
+
+#container4 .accommodationTypeItem:active {
+	transform: scale(0.95);
+}
+/* Session4 CSS end */
+
+/* Session5 CSS */
+#container5 {
+	margin: 10% auto;
+	width: 50vw;
+}
+
+#container5 .row5 {
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+	margin: 2rem 0;
+}
+
+#container5 div span {
+	font-size: 1.2rem;
+	margin: 0 0.2rem;
+}
+
+#container5 .row5 div button {
+	border: 0;
+	background-color: transparent;
+	font-size: 1.5rem;
+}
+
+#container5 .row5>div:first-child {
+	width: 10vw;
+}
+
+#container5 div hr {
+	border: none;
+	border-top: 1px solid gray;
+	width: 100%;
+}
+
+#container5 .row5>div:nth-child(2) div {
+	display: inline-block;
+}
+/* Session5 CSS end */
+
+/* Session6 CSS */
+#container6 {
+	width: 47%;
+	margin: 5% auto;
+}
+
+#container6  div i {
+	font-size: 1.5rem;
+	margin: 1rem 6.5rem 0.5rem 0;
+}
+
+#container6 .categoryItem {
+	display: inline-block;
+	margin: 0.1rem 1rem 1rem 0;
+}
+
+#container6 .categoryItem button {
+	width: 11rem;
+	height: 6rem;
+}
+
+#container6>div:nth-child(1) {
+	margin-bottom: 30%;
+}
+
+#container6 .categoryItem button>div:nth-child(2) {
+	float: left;
+}
+
+#container6 .w3-button.checked {
+	background-color: #d5d5d5 !important;
+}
+/* Session6 CSS end */
+
+/* Session7 CSS */
+#container7 {
+	width: 60%;
+	margin: 3% auto;
+}
+
+#container7>div i {
+	font-size: 1.5rem;
+	margin: 1rem 6.5rem 0.5rem 0;
+}
+
+#container7 .facilityItem {
+	display: inline-block;
+	margin: 0.1rem 1rem 1rem 0;
+}
+
+#container7 .facilityItem button {
+	width: 11rem;
+	height: 6rem;
+}
+
+#container7 .securityItem {
+	display: inline-block;
+	margin: 0.1rem 1rem 1rem 0;
+}
+
+#container7 .securityItem button {
+	width: 11rem;
+	height: 6rem;
+}
+
+#container7>div:nth-child(1) {
+	
+}
+
+#container7>div:nth-child(2) {
+	
+}
+
+#container7>div:nth-child(3) {
+	margin-bottom: 6rem;
+}
+
+#container7 .facilityItem button>div:nth-child(2) {
+	float: left;
+}
+
+.w3-button {
+	transition: transform 0.1s;
+}
+
+.w3-button:active {
+	transform: scale(0.95);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+#container7 .w3-button.checked {
+	background-color: #d5d5d5 !important;
+}
+/* Session7 CSS end */
+
+/* Session8 CSS */
+#container8 {
+	width: 40%;
+	margin: 5% auto;
+}
+
+#container8>div:nth-child(3) {
+	border: 1px solid black;
+	border-radius: 1rem;
+	height: 10rem;
+	margin: 1.5rem 0 0 0;
+}
+
+#container8>div:nth-child(3)>div {
+	text-align: center;
+	margin: 3rem 0 0 0;
+}
+
+#container8 span>i {
+	font-size: 1.5rem;
+	color: black;
+}
+
+#container8 input {
+	font-size: 2rem;
+	width: 15rem;
+	border: none;
+	outline: none;
+	color: black;
+}
+
+#container8 input:focus {
+	outline: none;
+	border: none;
+}
+
+#container8 .checkSelect {
+	color: black;
+	border: 1px solid black;
+	border-radius: 1rem;
+}
+
+#container8>div:nth-child(4) {
+	margin: 7rem 0 0 0;
+}
+
+#container8>div:nth-child(4)>div:nth-child(2), #container8>div:nth-child(4)>div:nth-child(3)
+	{
+	margin: 1rem 0 0 0;
+}
+/* Session8 CSS end */
+
+/* Session9 CSS */
+#container9 {
+	width: 31%;
+	margin: 5% auto;
+}
+
+#container9 i {
+	font-size: 1.25rem;
+}
+
+#container9 #reservationMessage {
+	resize: none;
+}
+/* Session9 CSS end */
+
+/* 모달 */
+.modal {
+	display: none; /* Hidden by default */
+	position: absolute; /* Stay in place */
+	z-index: 20; /* Sit on top */
+	padding-top: 11%; /* Location of the box */
+	margin: -40% auto;
+	width: 100%; /* Full width */
+	height: 100%; /* Full height */
+	overflow: auto; /* Enable scroll if needed */
+	background-color: rgb(0, 0, 0); /* Fallback color */
+	background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+	background-color: #fefefe;
+	margin: 0 auto;
+	padding: 1.5rem;
+	border: 1px solid #888;
+	width: 30%;
+	border-radius: 1rem;
+}
+
+/* The Close Button */
+.close {
+	color: #aaaaaa;
+	float: right;
+	margin: 0 0 0 0;
+	font-size: 1.5rem;
+	font-weight: bold;
+}
+
+.close:hover, .close:focus {
+	color: #000;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.ThumbnailImg {
+	border: 1px dotted black;
+	width: 98.5%;
+	height: 15rem;
+	max-width: 95%;
+	max-height: 25rem;
+	display: inline-block;
+	position: relative;
+}
+
+.representative {
+	border: 1px dotted black;
+	width: 98.5%;
+	height: 15rem;
+	max-width: 95%;
+	max-height: 25rem;
+	display: inline-block;
+	position: relative;
+}
+
+#addImgBtn {
+	border: 1px dotted black;
+	width: 47%;
+	height: 15rem;
+	margin: 1.25% 1.25% 0 0;
+	display: inline-block;
+	position: relative;
+}
+
+.upload-container2 i {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.imgDeleteBtn {
+	position: absolute;
+	top: 5px;
+	right: 10px;
+	font-size: 16px;
+	color: #000;
+	cursor: pointer;
+}
+
+#saveBtn {
+	position: absolute;
+	top: 10%;
+	right: 2%;
+	height: 5%;
+}
+
+.thumbnailImg {
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+}

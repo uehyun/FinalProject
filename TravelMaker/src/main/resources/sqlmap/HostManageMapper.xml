@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.travelmaker.admin.mapper.HostManageMapper">
+	<sql id="filterOption">
+		<if test="category != null and category != ''">
+			AND acc_category = #{category}
+		</if>
+		<if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+			AND to_char(payment_date, 'yyyy-mm-dd') between #{startDate} and #{endDate}
+		</if>
+	</sql>
+	
+	<sql id="onlyDate">
+		<if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+			AND to_char(payment_date, 'yyyy-mm-dd') between #{startDate} and #{endDate}
+		</if>
+	</sql>
+	
+	<resultMap type="hostManageVO" id="hostManageMap">
+		<id property="accNo" column="acc_no"/>
+		<result property="accName" column="acc_name"/>
+		<result property="accPostcode" column="acc_postcode"/>
+		<result property="accLocation" column="acc_location"/>
+		<result property="accPrice" column="acc_price"/>
+		<result property="accStandardCheckin" column="acc_standard_checkin"/>
+		<result property="accStandardCheckout" column="acc_standard_checkout"/>
+		<result property="accStatus" column="acc_status"/>
+		<result property="accScore" column="acc_score"/>
+		<result property="accLogitide" column="acc_logitide"/>
+		<result property="accLatitude" column="acc_latitude"/>
+		<result property="accWishlistCount" column="acc_wishlist_count"/>
+		<result property="accCount" column="acc_count"/>
+		<result property="accReservationCount" column="acc_reservation_count"/>
+		<result property="accAppropriatePeople" column="acc_appropriate_people"/>
+		<result property="accGuestExtraPrice" column="acc_guest_extra_price"/>
+		<result property="accRegDate" column="acc_reg_date"/>
+		<result property="accModDate" column="acc_mod_date"/>
+		<result property="accDelDate" column="acc_del_date"/>
+		<result property="accCleanFee" column="acc_clean_fee"/>
+		<result property="reservationInvailableDate" column="reservation_invailable_date"/>
+		<result property="accAttGroupNo" column="acc_att_group_no"/>
+		<result property="accCategory" column="acc_category"/>
+		<result property="accReservationMessage" column="acc_reservation_message"/>
+		<result property="accThumbnailPath" column="acc_thumbnail_path"/>
+		<result property="accContent" column="acc_content"/>
+		<result property="memNo" column="mem_no"/>
+		<result property="memId" column="mem_id"/>
+		<result property="memName" column="mem_name"/>
+		<result property="memPhone" column="mem_phone"/>
+		<result property="memEmail" column="mem_email"/>
+		<result property="memRegDate" column="mem_reg_date"/>
+		<result property="memDel" column="mem_del"/>
+		<result property="memProfilePath" column="mem_profile_path"/>
+		<result property="memPreLanguage" column="mem_pre_language"/>
+		<result property="memPreCurrency" column="mem_pre_currency"/>
+		<result property="facilities" column="facilities"/>
+		<result property="accRejectComent" column="acc_reject_coment"/>
+		
+		<collection property="eventList" resultMap="eventMap"/>
+		<collection property="accoptionList" resultMap="accoptionMap"/>
+	</resultMap>
+
+	<resultMap type="adminEventVO" id="eventMap">
+		<id property="eventNo" column="event_no"/>
+		<result property="eventTitle" column="event_title"/>
+		<result property="eventContent" column="event_content"/>
+		<result property="eventHit" column="event_hit"/>
+		<result property="eventStartDate" column="event_start_date"/>
+		<result property="eventEndDate" column="event_end_date"/>
+		<result property="eventRegDate" column="event_reg_date"/>
+		<result property="eventDiscountRate" column="event_discount_rate"/>
+		<result property="eventAttGroupNo" column="event_att_group_no"/>
+	</resultMap>
+	
+	<resultMap type="accoptionVO" id="accoptionMap">
+		<id property="optionNo" column="option_no"/>
+		<result property="accNo" column="acc_no"/>
+		<result property="optionNo" column="option_no"/>
+		<result property="optionCount" column="option_count"/>
+		<collection property="optionList" resultMap="optionitemMap"/>
+	</resultMap>
+	
+	<resultMap type="optionitemVO" id="optionitemMap">
+		<id property="optionNo" column="option_no"/>
+		<result property="optionName" column="option_name"/>
+		<result property="attGroupNo" column="att_group_no"/>
+	</resultMap>
+
+	<select id="selectOne" parameterType="String" resultMap="hostManageMap">
+		select
+		    ad.acc_no                                                   	,ad.mem_no
+		    ,acc_name 														,acc_postcode
+		    ,acc_location													,acc_price
+		    ,acc_standard_checkin											,acc_standard_checkout
+		    ,acc_status														,acc_score
+		    ,acc_logitide													,acc_latitude
+		    ,acc_wishlist_count												,acc_count
+		    ,acc_reservation_count											,acc_reject_comment
+		    ,acc_appropriate_people											,acc_guest_extra_price
+		    ,to_char(acc_reg_date, 'yyyy-mm-dd') as acc_reg_date			,to_char(acc_mod_date, 'yyyy-mm-dd') as acc_mod_date
+		    ,to_char(acc_del_date, 'yyyy-mm-dd') as acc_del_date			,acc_clean_fee 
+		    ,to_char(reservation_invailable_date, 'yyyy-mm-dd') as reservation_invailable_date
+		    ,acc_att_group_no												,ad.event_no
+		    ,acc_category													,acc_reservation_message
+		    ,acc_thumbnail_path												
+		    ,mem_id															,mem_name
+		    ,mem_phone														,mem_email
+		    ,to_char(mem_reg_date, 'yyyy-mm-dd') as mem_reg_date			,mem_del
+		    ,mem_profile_path 												,mem_pre_language
+			,mem_pre_currency 												,event_title
+		    ,event_content 													,event_hit
+		    ,to_char(event_start_date, 'yyyy-mm-dd') as event_start_date	,to_char(event_end_date, 'yyyy-mm-dd') as event_end_date
+		    ,to_char(event_reg_date, 'yyyy-mm-dd') as event_reg_date		,event_discount_rate
+		    ,e.att_group_no as event_att_group_no 							,ao.option_no
+            ,option_count                                                   ,option_name                                                   
+            ,oi.att_group_no                                                ,oc.facilities
+		from
+		    accommodation ad
+		left join
+		    acc_option ao on ad.acc_no = ao.acc_no
+		left join
+		    optionitem oi on ao.option_no = oi.option_no
+		left join
+		    member m on ad.mem_no = m.mem_no
+		left join
+		    event e on ad.event_no = e.event_no
+        left join
+            (select 
+                acc_no, 
+                count(*) as facilities 
+            from 
+                acc_option
+            where
+                option_no like 'fac'||'%' or  option_no like 'sec'||'%'
+            group by 
+                acc_no) oc
+        on ad.acc_no = oc.acc_no
+        where
+		    m.mem_del = 'N'
+        and
+            ad.acc_no = #{acc_no}
+	</select>
+	
+	<select id="list" resultType="hostManageVO">
+		select distinct
+		    ad.acc_no        ,ad.mem_no
+		    ,acc_name 		 ,acc_location	 
+            ,acc_status		 ,acc_category	 
+            ,mem_id          ,mem_name   
+            ,oc.facilities	 ,ad.acc_count
+		from
+		    accommodation ad
+		left join
+		    acc_option ao on ad.acc_no = ao.acc_no
+		left join
+		    optionitem oi on ao.option_no = oi.option_no
+		left join
+		    member m on ad.mem_no = m.mem_no
+        left join
+            (select 
+                acc_no, 
+                count(*) as facilities 
+            from 
+                acc_option
+            where
+                option_no like 'fac'||'%' or  option_no like 'sec'||'%'
+            group by 
+                acc_no) oc
+        on ad.acc_no = oc.acc_no
+        where
+		    m.mem_del = 'N'
+		order by ad.acc_count desc
+	</select>
+	
+	<update id="okUpdate" parameterType="hostManageVO">
+		update 
+			accommodation
+		set
+			acc_count = 10,
+			acc_status = '활성',
+			acc_reject_comment = '승인 상태'
+		where
+			acc_no = #{accNo}
+		and
+			mem_no = #{memNo}
+	</update>
+	
+	<update id="noUpdate" parameterType="hostManageVO">
+		update 
+			accommodation
+		set
+			acc_count = 9,
+			acc_status = '거절',
+			acc_reject_comment = #{accRejectComment}
+		where
+			acc_no = #{accNo}
+		and
+			mem_no = #{memNo}
+	</update>
+	
+	<select id="selectCategory" resultType="optionitemVO">
+		SELECT 
+			option_no
+			, option_name
+			, att_group_no
+		  FROM optionitem
+		 WHERE option_no like 'cot_%'
+		 ORDER BY option_no
+	</select>
+	
+	<select id="getTextData" parameterType="map" resultType="map">
+		SELECT 
+			nvl(round(sum((payment_total_price * 0.06) + (ares_total_price * 0.08))), 0) AS total
+        	, nvl(sum(ares_discount_price), 0) 											 AS discount
+        	, count(payment_no) 														 AS count
+  		  FROM payment a inner join acc_reservation b ON(a.ares_no = b.ares_no)
+                 		 inner join accommodation c   ON(b.acc_no = c.acc_no)
+  		 where 1 = 1 <include refid="filterOption"></include> 
+	</select>
+	
+	<select id="getPieChartData" parameterType="map" resultType="map">
+		SELECT
+			option_no 																		AS category
+			, option_name																	AS categoryname
+			, nvl(ROUND(SUM((payment_total_price * 0.06) + (ares_total_price * 0.08))), 0)  AS price
+		  FROM optionitem a left outer join accommodation b 	 ON(a.option_no = b.acc_category)
+		  					   left outer join acc_reservation c ON(b.acc_no = c.acc_no)
+		                       left outer join payment         d ON(c.ares_no = d.ares_no)
+		 <![CDATA[ WHERE b.acc_count > 9 ]]> <include refid="onlyDate"></include>
+		 GROUP BY option_no, option_name
+		 ORDER BY option_no
+	</select>
+	
+	<select id="getGraphChartData" parameterType="map" resultType="map">
+		SELECT 
+			b.yearmonth                  AS AVGMONTH
+			, NVL(a.allaccavgprice, 0)   AS AVGPRICE
+			, NVL(a.categoryavgprice, 0) AS CATEGORYAVGPRICE
+  		  FROM (
+                SELECT 
+                	a.yearmonth
+                	, a.avgprice         AS allaccavgprice
+                	, b.avgprice         AS categoryavgprice
+                  FROM (
+                        SELECT 
+                        	to_char(ares_reg_date, 'yyyy-mm') AS yearmonth
+                        	,  ROUND(SUM((payment_total_price * 0.06) + (ares_total_price * 0.08)))   AS avgprice
+                          FROM acc_reservation a inner join payment b ON(a.ares_no = b.ares_no)
+                         WHERE 1 = 1
+                         GROUP BY to_char(ares_reg_date, 'yyyy-mm') 
+                       ) a left outer join
+                       (
+                        SELECT 
+                        	to_char(ares_reg_date, 'yyyy-mm')  											AS yearmonth
+                        	,  ROUND(SUM((payment_total_price * 0.06) + (ares_total_price * 0.08)))    	AS avgprice
+                          FROM acc_reservation a inner join accommodation b ON(a.acc_no = b.acc_no)
+                          						 inner join payment c 	    ON(a.ares_no = c.ares_no)
+                         WHERE 1 = 1 
+                         <if test="category != null and category != ''">
+	                         AND acc_category = #{category}
+                         </if>
+                         GROUP BY to_char(ares_reg_date, 'yyyy-mm') 
+                       ) b ON(a.yearmonth = b.yearmonth)
+               ) a right outer join
+               (   
+             	SELECT level no1, to_char(add_months(sysdate, -1*(level-1)), 'yyyy-mm') yearmonth 
+                  FROM dual
+               <![CDATA[
+               CONNECT BY level <= 12) b ON(b.yearmonth = a.yearmonth)
+               ]]>
+                 WHERE 1 = 1
+			     ORDER BY 1 asc
+	</select>
+	
+	<select id="getImg" parameterType="String" resultType="fileVO">
+		SELECT att_path
+			FROM (
+			  SELECT att_path, ROWNUM AS rnum
+			  FROM attach
+			  WHERE att_group_no = #{accNo}
+			  AND save_name LIKE 's_%'
+			  ORDER BY CAST(att_no AS INT) ASC
+			)
+			WHERE rnum <![CDATA[<=]]> 5
+	</select>
+</mapper>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.travelmaker.trip.mapper.TripMemberMapper">
+	<insert id="insert" parameterType="travelMemberVO">
+		insert into travel_member (
+			travel_no, mem_no
+		) values (
+			#{travelNo}, #{memNo}
+		)
+	</insert>
+	
+	<resultMap type="travelMemberVO" id="travelMemberMap">
+	    <result property="travelNo" column="travel_no"/>
+	    <collection property="memList" ofType="member">
+	        <id property="memNo" column="mem_no"/>
+	        <result property="memId" column="mem_id"/>
+	        <result property="memPhone" column="mem_phone"/>
+	        <result property="memEmail" column="mem_email"/>
+	        <result property="memName" column="mem_name"/>
+	        <result property="memProfilePath" column="mem_profile_path"/>
+	    </collection>
+	</resultMap>
+	
+	<select id="selectOne" parameterType="String" resultMap="travelMemberMap">
+		select
+		    tm.travel_no
+		    , m.mem_no
+		    , mem_id
+		    , mem_phone
+		    , mem_email
+		    , mem_name
+		    , mem_profile_path
+		from 
+		    travel_member tm
+		left join
+		    member m on tm.mem_no = m.mem_no
+		where
+			tm.travel_no = #{travelNo}
+	</select>
+</mapper>

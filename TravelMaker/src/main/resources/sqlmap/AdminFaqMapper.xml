@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.travelmaker.admin.mapper.AdminFaqMapper">
+	
+	<insert id="register" parameterType="faqVO" useGeneratedKeys="true">
+		<selectKey keyProperty="faqBoardNo" resultType="String" order="BEFORE">
+			select seq_faq.nextval from dual			
+		</selectKey>
+		insert into faq_board(
+			faq_board_no, faq_board_title, faq_board_content, faq_board_hit, 
+			faq_board_reg_date, faq_board_del_yn, faq_board_writer
+		)values(
+			#{faqBoardNo}, #{faqBoardTitle}, #{faqBoardContent}, 0, sysdate, 'N', #{faqBoardWriter}
+		)
+	</insert>
+	
+	<select id="list" resultType="faqVO">
+		select
+			faq_board_no, faq_board_title, faq_board_content, faq_board_hit, to_char(faq_board_reg_date, 'yyyy-mm-dd HH24:mm') as faq_board_reg_date,
+			faq_board_mod_date, faq_board_del_date, faq_att_group_no, faq_board_writer
+		from 
+			faq_board
+		where
+			faq_board_del_yn = 'N'
+		order by faq_board_no desc
+	</select>
+	
+	<select id="detail" parameterType="String" resultType="faqVO">
+		select
+			faq_board_no, faq_board_title, faq_board_content, faq_board_hit, faq_board_reg_date, faq_board_mod_date, faq_board_del_date,
+			faq_board_del_yn, faq_board_writer
+		from faq_board
+		where 
+			faq_board_no=#{faqBoardNo}
+		and
+			faq_board_del_yn = 'N'
+	</select>
+	
+	<update id="deleteOne" parameterType="String">
+		update faq_board
+		set 
+			faq_board_del_yn = 'Y'
+		where 
+			faq_board_no = #{faqBoardNo}
+	</update>
+	
+<!-- 		 안녕 나는 전다미가 짠 selectDelete라는 sql 업데이트 문장이야 나는 kr.or.ddit.travelmaker.admin.mapper.AdminFaqMapper 여기에 속해 있어 문제가 있으면 여기로 와 ㅎㅎ  -->
+	<update id="selectDelete" parameterType="String">
+			update faq_board
+			set 
+				faq_board_del_yn = 'Y'
+			where 
+				faq_board_no = #{msg}
+	</update>
+	
+	
+	<update id="update" parameterType="faqVO">
+		update faq_board
+		set 
+			faq_board_title = #{faqBoardTitle},
+			faq_board_content = #{faqBoardContent},
+			faq_board_mod_date = sysdate
+		where faq_board_del_yn = 'N' and faq_board_no=#{faqBoardNo}
+	</update>
+	
+	<select id="selectFaqCount" parameterType="pagingVO" resultType="int">
+		select
+			count(faq_board_no)
+		from 
+			faq_board
+		where 1=1
+		<if test="searchType != null">
+			and (faq_board_title like '%'||#{searchWord}||'%')
+		</if>
+		and faq_board_del_yn = 'N'
+	</select>
+	
+	<select id="selectFaqList" parameterType="pagingVO" resultType="faqVO">
+		select
+			b.*
+		from(
+			select
+				a.*, row_number() over (order by a.faq_board_no desc) rnum
+			from(
+				select
+					faq_board_no
+				  , faq_board_title
+				  , faq_board_content
+				  , faq_board_hit, to_char(faq_board_reg_date, 'yyyy-mm-dd HH24:mm') as faq_board_reg_date
+				  , faq_board_mod_date
+				  , faq_board_del_date
+				  , faq_att_group_no
+				  , faq_board_writer
+				from 
+					faq_board
+				where 1=1
+				
+				and faq_board_del_yn = 'N'
+				<if test="searchWord != null">
+					and (faq_board_title like '%'||#{searchWord}||'%')
+				</if>
+				order by faq_board_no desc
+			) a
+		) b
+		<![CDATA[
+			where b.rnum >= #{startRow} and b.rnum <= #{endRow}
+		]]>
+	</select>
+	
+</mapper>
+
+
+
+
+
+

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.travelmaker.review.mapper.ReviewMapper">
+	<select id="selectSomeMemberReview" parameterType="string" resultType="memberReview">
+		SELECT
+			a.mem_review_no
+			, a.acc_no
+			, a.mem_review_content
+			, a.mem_review_reg_date
+			, a.host_no
+			, a.host_id
+			, a.host_profile_path
+	      FROM
+	        ( 
+	        SELECT
+			    mem_review_no           AS mem_review_no
+				, a.acc_no              AS acc_no
+				, mem_review_content    AS mem_review_content
+				, mem_review_reg_date   AS mem_review_reg_date
+				, c.mem_no				AS host_no
+				, c.mem_id				AS host_id
+				, c.mem_profile_path    AS host_profile_path
+			  FROM member_review a inner join accommodation b on(a.acc_no = b.acc_no)
+			                       inner join member c 		  on(b.mem_no = c.mem_no)
+			 WHERE a.mem_no = #{memNo}
+	         order by 4 desc) a
+	         <![CDATA[
+	     WHERE rownum <= 3
+	    ]]>
+	</select>
+
+	<select id="selectAllMemberReview" parameterType="map" resultType="memberReview">
+		 SELECT b.*
+		  FROM(
+		  	   SELECT
+			       a.*, row_number() over (ORDER BY a.mem_review_no desc) rnum
+		  	     FROM (
+		  	     	  SELECT
+					       mem_review_no
+						   , a.acc_no
+						   , mem_review_content
+						   , to_char(mem_review_reg_date, 'yyyy-mm-dd') AS mem_review_reg_date
+						   , c.mem_no				AS host_no
+			      		   , c.mem_id				AS host_id
+			      		   , c.mem_profile_path     AS host_profile_path
+			      		   , 'host' review_type
+			      		FROM member_review a inner join accommodation b on(a.acc_no = b.acc_no)
+			                                 inner join member c on(b.mem_no = c.mem_no)
+			     	   WHERE a.mem_no = #{memNo}
+			    	   ORDER BY 4 desc
+			  		  ) a
+		 	  ) b  
+		 <![CDATA[
+		 	WHERE b.rnum >= #{startRow} and b.rnum <= #{endRow}
+		 ]]>
+	</select>
+	
+	<select id="memberReviewCount" parameterType="string" resultType="int">
+		SELECT
+			COUNT(mem_review_no)
+		  FROM member_review
+		 WHERE mem_no = #{memNo}
+	</select>
+	
+	<select id="accReviewCount" parameterType="string" resultType="int">
+		SELECT
+			COUNT(acc_review_no)
+		  FROM acc_review
+		 WHERE mem_no = #{memNo}
+	</select>
+	
+	<select id="selectAllAccReview" parameterType="map" resultType="accReview">
+		SELECT b.*
+		  FROM(
+		  	   SELECT
+			       a.*, row_number() over (ORDER BY a.acc_review_no desc) rnum
+		  	     FROM (
+		  	     	  SELECT
+						  a.acc_review_no
+						  , a.acc_no
+						  , a.ares_no
+						  , a.acc_review_content
+						  , to_char(acc_review_reg_date, 'yyyy-mm-dd') AS acc_review_reg_date
+						  , c.acc_name
+						  , 'acc' review_type
+						FROM acc_review a inner join acc_reservation b on(a.ares_no = b.ares_no)
+                                          inner join accommodation c on(a.acc_no = c.acc_no)
+					   WHERE a.mem_no = #{memNo}
+			    	   ORDER BY 4 desc
+			  		  ) a
+		 	  ) b  
+		 <![CDATA[
+		 	WHERE b.rnum >= #{startRow} and b.rnum <= #{endRow}
+		 ]]>
+	</select>
+	
+	<select id="selectRating" parameterType="string" resultType="double">
+		SELECT
+			AVG(acc_review_score)
+		  FROM review_score
+		 WHERE acc_review_no = #{accReviewNo} 
+		 GROUP BY acc_review_no
+	</select>
+	
+	<delete id="deleteAccReview" parameterType="string">
+		DELETE FROM acc_review WHERE acc_review_no = #{accReviewNo}
+	</delete>
+	
+	<delete id="deleteRate" parameterType="string">
+		DELETE FROM review_score WHERE acc_review_no = #{accReviewNo}
+	</delete>
+	
+	<update id="updateAccReview" parameterType="map">
+		UPDATE acc_review
+		   SET
+		   	acc_review_content = #{accReviewContent}
+		   	, acc_review_mod_date = sysdate 
+		 WHERE acc_review_no = #{accReviewNo}
+	</update>
+	
+	<update id="updateScore" parameterType="map">
+		UPDATE review_score
+		   SET acc_review_score = #{score}
+		 WHERE acc_review_no = #{accReviewNo} 
+		   AND review_score_category = #{reviewScoreCategory}
+	</update>
+	
+	<insert id="blameAcc" parameterType="map">
+		INSERT INTO 
+			blame(blame_no, blame_type, blame_reason, blame_status, blame_date, mem_no, review_no, blame_mem)
+		VALUES('bla_'||seq_blame.nextval, '리뷰', #{blameReason}, '대기', sysdate, #{memNo}, #{reviewNo}, #{hostNo}) 
+	</insert>
+	
+	<insert id="insertAccReview" parameterType="map" useGeneratedKeys="true">
+		<selectKey keyProperty="accReviewNo" resultType="string" order="BEFORE">
+			SELECT 'accReview_'||seq_accreview.nextval from dual
+		</selectKey>
+		INSERT INTO
+			acc_review(acc_review_no, acc_no, ares_no, mem_no, acc_review_content, acc_review_reg_date)
+		VALUES(#{accReviewNo}, #{accNo}, #{aresNo}, #{memNo}, #{accReviewContent}, sysdate)
+	</insert>
+	
+	<insert id="insertScore" parameterType="map">
+		INSERT INTO
+			review_score(review_score_category, acc_review_no, acc_review_score)
+		VALUES(#{reviewScoreCategory}, #{accReviewNo}, #{score})
+	</insert>
+	
+	<insert id="insertMemReview" parameterType="map">
+		INSERT INTO 
+			member_review(mem_review_no, mem_no, acc_no, mem_review_content, mem_review_reg_date)
+		VALUES('memReview_'||seq_member_review.nextval, #{memNo}, #{accNo}, #{memReviewContent}, sysdate)		
+	</insert>
+	
+	<select id="selectMemberByReview" parameterType="string" resultType="string">
+		SELECT
+			mem_id
+		   FROM member a inner join acc_review b ON(a.mem_no = b.mem_no)
+		  WHERE acc_review_no = #{accReviewNo}  	
+	</select>
+	
+	<select id="selectMemberByAcc" parameterType="string" resultType="string">
+		SELECT
+			a.mem_no
+		  FROM accommodation a inner join member b ON(a.mem_no = b.mem_no)
+		 WHERE acc_no = #{accNo} 	
+	</select>
+</mapper>

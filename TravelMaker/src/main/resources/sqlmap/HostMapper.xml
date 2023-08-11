@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.travelmaker.host.mapper.HostMapper">
+	<select id="facOptionItems" resultType="optionitemVO">
+		select OPTION_NO, OPTION_NAME, ATT_GROUP_NO from OPTIONITEM where substr(OPTION_NO, 1, instr(OPTION_NO, '_') -1) like 'fac'
+	</select>
+	<select id="typeOptionItems" resultType="optionitemVO">
+		select OPTION_NO, OPTION_NAME, ATT_GROUP_NO from OPTIONITEM where substr(OPTION_NO, 1, instr(OPTION_NO, '_') -1) like 'type'
+	</select>
+	<select id="secOptionItems" resultType="optionitemVO">
+		select OPTION_NO, OPTION_NAME, ATT_GROUP_NO from OPTIONITEM where substr(OPTION_NO, 1, instr(OPTION_NO, '_') -1) like 'sec'
+	</select>
+	<select id="cotOptionItems" resultType="optionitemVO">
+		select OPTION_NO, OPTION_NAME, ATT_GROUP_NO from OPTIONITEM where substr(OPTION_NO, 1, instr(OPTION_NO, '_') -1) like 'cot'
+	</select>
+	<select id="danOptionItems" resultType="optionitemVO">
+		select OPTION_NO, OPTION_NAME, ATT_GROUP_NO from OPTIONITEM where substr(OPTION_NO, 1, instr(OPTION_NO, '_') -1) like 'dan'
+	</select>
+
+	<select id="memNoById" parameterType="String" resultType="String">
+		select mem_no from member where mem_id = #{memName}
+	</select>
+	
+	<insert id="insertAcommodation" parameterType="acommodationVO" useGeneratedKeys="true">
+		<selectKey keyProperty="accNo" resultType="String" order="BEFORE">
+			SELECT 'acc_' || SEQ_ACCOMMODATION.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT ALL INTO ACCOMMODATION(ACC_NO, MEM_NO, ACC_NAME, ACC_CONTENT, ACC_POSTCODE, ACC_LOCATION, ACC_PRICE, ACC_STANDARD_CHECKIN, ACC_STANDARD_CHECKOUT, ACC_SCORE, ACC_LOGITIDE, ACC_LATITUDE, ACC_APPROPRIATE_PEOPLE, ACC_GUEST_EXTRA_PRICE, ACC_MOD_DATE, ACC_DEL_DATE, ACC_CLEAN_FEE, RESERVATION_INVAILABLE_DATE, ACC_ATT_GROUP_NO, EVENT_NO, ACC_CATEGORY, ACC_RESERVATION_MESSAGE, acc_status)
+		VALUES(#{accNo}, #{memNo}, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, '비활성')
+		
+		<foreach collection="eventList" item="item">
+			INTO acc_discount(acc_no, discount_type, discount_rate)
+			VALUES (#{accNo}, #{item.discountType}, #{item.discountRate})
+		</foreach>
+		
+		<foreach collection="accOption" item="item">
+			into acc_option(acc_no, option_no, option_count)
+			values (#{accNo}, #{item.optionNo}, #{item.optionCount})
+		</foreach>
+		
+		select * from dual
+	</insert>
+	
+	<update id="SessionUpdate1" parameterType="acommodationVO">
+		update accommodation
+		set acc_name = #{accName}, acc_content = #{accContent}, acc_count = #{accCount}
+		where acc_no = #{accNo}
+	</update>
+	
+	<update id="SessionUpdate2" parameterType="acommodationVO">
+		update accommodation
+		set acc_logitide = #{accLogitide}, acc_latitude = #{accLatitude}, acc_count = #{accCount}, acc_postcode = #{accPostcode}, acc_location = #{accLocation}
+		where acc_no = #{accNo}
+	</update>
+	
+	<update id="SessionUpdate3" parameterType="acommodationVO">
+		update accommodation
+		set acc_att_group_no = #{accAttGroupNo}, acc_count = #{accCount}
+		where acc_no = #{accNo}
+	</update>
+	
+	<insert id="uploadImagesByaccNo" parameterType="java.util.List">
+
+		insert all
+		<foreach item="fileVO" collection="list">
+			into attach(att_group_no, att_no, att_ext, original_name, save_name, att_size, att_reg_date, att_path)
+			values
+			(
+			#{fileVO.attGroupNo},
+			#{fileVO.attNo},
+			#{fileVO.attExt},
+			#{fileVO.originalName},
+			#{fileVO.saveName},
+			#{fileVO.attSize},
+			sysdate,
+			#{fileVO.attPath}
+			)
+		</foreach>
+		select * from dual
+	</insert>
+	
+	<update id="updateConTypeOption" parameterType="accoptionVO">
+		update acc_option
+		set 
+			option_count = #{optionCount}
+		where 
+			acc_no like #{accNo} and option_no like #{optionNo}
+	</update>
+	
+	<update id="SessionOptionUpdate" parameterType="acommodationVO">
+		update accommodation
+		set acc_count = #{accCount}
+		where acc_no = #{accNo}
+	</update>
+	
+	<insert id="insertTypeOption" parameterType="java.util.List">
+		insert all 
+		<foreach item="accoptionVO" collection="list">
+			into acc_option(acc_no, option_no, option_count) values(#{accoptionVO.accNo}, #{accoptionVO.optionNo}, #{accoptionVO.optionCount})
+		</foreach>
+		select * from dual		
+	</insert>
+	
+	<update id="SessionUpdate6" parameterType="acommodationVO">
+		update accommodation
+		set acc_count = #{accCount}, acc_category = #{accCategory}
+		where acc_no = #{accNo}
+	</update>
+	
+	<update id="SessionUpdate8" parameterType="acommodationVO">
+		update accommodation
+		set acc_count = #{accCount}, acc_price = #{accPrice}, acc_standard_checkin = #{accStandardCheckin}, acc_standard_checkout = #{accStandardCheckout}
+		where acc_no = #{accNo}
+	</update>
+	
+	<update id="SessionUpdate9" parameterType="acommodationVO">
+		update accommodation
+		set acc_count = #{accCount}, acc_reservation_message = #{accReservationMessage}
+		where acc_no = #{accNo}
+	</update>
+	
+	
+	
+	<!-- 숙소 수정 데이터 불러오기  -->
+	<resultMap type="acommodationVO" id="acommodationList">
+		<id property="accNo" column="acc_no"/>
+		<result property="accNo" column="acc_no"/>
+		<result property="memNo" column="mem_no"/>
+		<result property="accName" column="acc_name"/>
+		<result property="accContent" column="acc_content"/>
+		<result property="accCategory" column="acc_category"/>
+		<result property="accReservationMessage" column="acc_reservation_message"/>
+		<result property="accPostcode" column="acc_postcode"/>
+		<result property="accLocation" column="acc_location"/>
+		<result property="accPrice" column="acc_price"/>
+		<result property="accStandardCheckin" column="acc_standard_checkin"/>
+		<result property="accStandardCheckout" column="acc_standard_checkout"/>
+		<result property="accStatus" column="acc_status"/>
+		<result property="accScore" column="acc_score"/>
+		<result property="accLogitide" column="acc_logitide"/>
+		<result property="accLatitude" column="acc_latitude"/>
+		<result property="accWishlistCount" column="acc_wishlist_count"/>
+		<result property="accCount" column="acc_count"/>
+		<result property="accReservationCount" column="acc_reservation_count"/>
+		<result property="accAppropriatePeople" column="acc_appropriate_people"/>
+		<result property="accGuestExtraPrice" column="acc_guest_extra_price"/>
+		<result property="accCleanFee" column="accc_clean_fee"/>
+		<result property="reservationInvailableDate" column="reservation_invailable_date"/>
+		<result property="accAttGroupNo" column="acc_att_group_no"/>
+		<result property="eventNo" column="event_no"/>
+		
+		<collection property="files" resultMap="fileMap"></collection>
+	</resultMap>
+	<resultMap type="fileVO" id="fileMap">
+		<result property="attGroupNo" column="att_group_no"/>
+		<result property="saveName" column="save_name"/>
+		<result property="attPath" column="att_path"/>
+	</resultMap>
+	
+	<select id="accommodationDetailByAccNo" parameterType="String" resultMap="acommodationList">
+		select a.*, att.*
+		from accommodation a
+		left join attach att on a.acc_att_group_no = att.att_group_no
+		where a.acc_no like #{accNo} and att.save_name not like 's_%'
+		order by att.att_no asc
+	</select>
+	
+	<select id="accommodationOptionsByAccNo" parameterType="String" resultType="accoptionVO">
+		SELECT ao.*, i.*
+		FROM ACC_OPTION ao
+		LEFT JOIN OPTIONITEM i ON ao.option_no = i.option_no
+		where ao.acc_no like #{accNo}
+		order by ao.option_no
+	</select>
+	
+	<insert id="insertRole" parameterType="String">
+		insert into member_auth (
+			auth, mem_no
+		) values (
+			'ROLE_HOST' , #{memNo}
+		)
+	</insert>
+	
+	<select id="getRole" parameterType="String" resultType="int">
+		select count(*)
+		from 
+			member_auth
+		where 
+			mem_no = #{memNo}
+		and
+			auth = 'ROLE_HOST'
+	</select>
+</mapper>

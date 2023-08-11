@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.travelmaker.member.mapper.MemberMapper">
+	<resultMap type="member" id="memberMap">
+		<id property="memNo" column="mem_no" />
+		<result property="memNo" column="mem_no" />
+		<result property="memId" column="mem_id" />
+		<result property="memPw" column="mem_pw" />
+		<result property="memName" column="mem_name" />
+		<result property="memPhone" column="mem_phone" />
+		<result property="memEmail" column="mem_email" />
+		<result property="memAgree" column="mem_agree" />
+		<result property="memRegDate" column="mem_reg_date" />
+		<result property="memModDate" column="mem_mod_date" />
+		<result property="memDelDate" column="mem_del_date" />
+		<result property="enabled" column="enabled" />
+		<result property="memDel" column="mem_del" />
+		<result property="memIntroduce" column="mem_introduce" />
+		<result property="memProfilePath" column="mem_profile_path" />
+		<result property="memBlameCount" column="mem_blame_count" />
+		<result property="memPreLanguage" column="mem_pre_language" />
+		<result property="memPreCurrency" column="mem_pre_currency" />
+		<collection property="authList" ofType="auth">
+			<result property="memNo" column="mem_no" />
+			<result property="auth" column="auth" />
+		</collection>
+		<collection property="socialList" ofType="social">
+			<result property="memNo" column="mem_no"/>
+			<result property="socialType" column="social_type"/>
+			<result property="socialId" column="social_id"/>
+		</collection>
+	</resultMap>
+	
+	<sql id="searchData">
+		<if test="memEmail != null and memEmail != ''">
+        	AND mem_email = #{memEmail}
+	    </if>
+	    
+	    <if test="memPhone != null and memPhone != ''">
+	        AND mem_phone = #{memPhone}
+	    </if>
+	    
+	    <if test="memName != null and memName != ''">
+	        AND mem_name = #{memName}
+	    </if>
+	    
+	    <if test="memId != null and memId != ''">
+	        AND mem_id = #{memId}
+	    </if>
+	    
+	    <if test="memNo != null and memNo != ''">
+	    	AND mem_no = #{memNo}
+	    </if>
+	</sql>
+	
+	<sql id="findMember">
+		<choose>
+			<when test="socialId != null and socialId != '' and socialService != null and socialService != ''">
+				AND social_id = #{socialId} and social_type = UPPER(#{socialService})
+			</when>
+			<otherwise>
+				AND mem_id = #{memId}
+			</otherwise>
+		</choose>
+	</sql>
+	
+	<select id="selectMember" parameterType="map" resultMap="memberMap">
+		SELECT 
+			a.mem_no
+			, mem_id
+			, mem_pw
+			, mem_phone
+			, mem_email
+			, mem_name
+			, mem_profile_path
+			, mem_pre_language
+			, mem_pre_currency
+			, social_type
+			, social_id
+			, auth
+			, mem_introduce
+		  FROM member a left outer join member_social b ON(a.mem_no = b.mem_no) 
+		     			left outer join member_auth c ON(a.mem_no = c.mem_no)
+		 WHERE 1 = 1 <include refid="findMember"></include>
+		 ORDER BY DECODE(social_type, 'NAVER', 1, 'KAKAO', 2, 'GOOGLE', 3)
+	</select>
+	
+	<select id="readByUser" parameterType="map" resultMap="memberMap">
+		SELECT
+			m.mem_no
+			, mem_id
+			, mem_pw
+			, mem_name
+			, mem_email
+			, mem_phone
+			, mem_profile_path
+			, enabled
+			, a.auth
+			, mem_pre_currency
+			, mem_pre_language
+		  FROM member m left outer join member_auth a ON(m.mem_no = a.mem_no)
+		 WHERE mem_id = #{memId}
+	</select>
+	 
+	<select id="findData" parameterType="map" resultType="member">
+		SELECT 
+			mem_no
+			, mem_id
+			, mem_profile_path
+		  FROM member 
+		 WHERE 1 = 1 <include refid="searchData"></include>
+	</select>
+	
+	<insert id="insertMember" parameterType="member" useGeneratedKeys="true">
+		<selectKey keyProperty="memNo" resultType="string" order="BEFORE">
+			SELECT 'mem_' || seq_member.nextval FROM dual
+		</selectKey>
+		INSERT ALL 
+		INTO member(
+			mem_no, mem_id, mem_pw, mem_name, <if test="memPhone != null and memPhone != ''"> mem_phone, </if>mem_del, mem_email, mem_agree, mem_reg_date, enabled
+		)
+		 VALUES (
+			#{memNo}, #{memId}, #{memPw}, #{memName}, <if test="memPhone != null and memPhone != ''"> #{memPhone}, </if>'N', #{memEmail}, 'Y', sysdate, '1' 
+		)
+		<foreach collection="authList" item="item">
+			INTO member_auth (mem_no, auth)
+			VALUES(#{memNo}, #{item.auth})
+		</foreach>
+		
+		<foreach collection="socialList" item="item">
+			INTO member_social (mem_no, social_type, social_id)
+			VALUES(#{memNo}, #{item.socialType}, #{item.socialId})
+		</foreach>
+		SELECT * FROM dual
+	</insert>
+
+	<update id="updateSocial" parameterType="map">
+		UPDATE member_social 
+		   SET social_id = #{socialId} 
+		 WHERE mem_no = #{memNo} AND social_type = #{socialType}
+	</update>
+	
+	<update id="profileUpdate" parameterType="member">
+		UPDATE member
+		   SET mem_name = #{memName}
+		   	   , mem_email = #{memEmail}
+		   	   
+		   	   <if test="memPhone != null and memPhone != ''">
+		   	   	, mem_phone = #{memPhone}
+		   	   </if>
+		   	   
+		   	   <if test="memIntroduce != null and memIntroduce != ''">
+		   	   	, mem_introduce = #{memIntroduce}
+		   	   </if>
+		   	   
+		   	   <if test="memProfilePath != null and memProfilePath != ''">
+		   	   	, mem_profile_path = #{memProfilePath}
+		   	   </if>
+		 WHERE mem_no = #{memNo}
+	</update>
+	
+	<update id="updatePassword" parameterType="map">
+		UPDATE member
+		   SET mem_pw = #{encodedPw}
+		 WHERE mem_no = #{memNo}
+	</update>
+	
+	<update id="updatePrefer" parameterType="member">
+		UPDATE member 
+		   SET
+		<choose>
+			<when test="memPreLanguage != null and memPreLanguage != ''">
+			   	mem_pre_language = #{memPreLanguage}
+			</when>
+			<otherwise>
+			  	mem_pre_currency = #{memPreCurrency}
+			</otherwise>
+		</choose>
+		 WHERE mem_no = #{memNo}
+	</update>
+</mapper>

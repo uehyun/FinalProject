@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.travelmaker.flight.mapper.FlightMapper">
+	<!-- 공항  -->
+	<select id="getAirport" resultType="flightVO">
+		SELECT
+			  airport_code
+			 ,airport_name
+		FROM airport
+	</select>
+	
+	<!-- 비행기 데이터 넣기 -->
+	<insert id="insertFlightData" parameterType="java.util.List">
+		INSERT INTO flight(
+			flight_no
+			,flight_airline
+			,flight_model
+			,flight_depart_time
+			,flight_arrive_time
+			,depart_airport
+			,arrive_airport 
+		)VALUES(
+			seq_flight_no.nextval
+			,#{flightAirline}
+			,#{flightModel}
+			,#{flightDepartTime}
+			,#{flightArriveTime}
+			,#{departAirport}
+			,#{arriveAirport}
+			)
+	</insert>
+	
+	<!-- 공항 이름 검색 -->
+	<select id="getAirportByName" resultType="flightVO" parameterType="String">
+		SELECT 
+			airport_code
+			,airport_name 
+		FROM airport
+		WHERE airport_name LIKE '%' || #{flightName} || '%'
+	</select>
+	
+	<!-- 비행기 리스트 -->
+	<select id="flightList" resultType="flightVO" parameterType="flightVO">
+	    SELECT ROWNUM, X.*
+		FROM (
+		    SELECT 
+		        ROW_NUMBER() OVER (ORDER BY flight_depart_time ASC) AS rn,
+		        f.flight_no,
+		        f.flight_airline,
+		        f.flight_model,
+		        TO_CHAR(f.flight_depart_time, 'HH24:MI') flight_depart_time,
+		        TO_CHAR(f.flight_arrive_time, 'HH24:MI') flight_arrive_time,
+		        f.depart_airport,
+		        f.arrive_airport,
+		        MIN(s.adult_price) adult_price,
+		        EXTRACT(DAY FROM (f.flight_arrive_time - f.flight_depart_time)) * 24 +
+		        EXTRACT(HOUR FROM (f.flight_arrive_time - f.flight_depart_time)) AS duration_hour,
+		        EXTRACT(MINUTE FROM (f.flight_arrive_time - f.flight_depart_time)) AS duration_minute
+		    FROM flight f 
+		    INNER JOIN flight_seat s ON (f.flight_no = s.flight_no)
+		    WHERE 
+		        f.depart_airport = #{departAirport}
+		        AND f.arrive_airport = #{arriveAirport}
+		        AND TO_CHAR(f.flight_depart_time, 'YYYYMMDD') = #{flightDepartTime}
+		    GROUP BY
+		        f.flight_no,
+		        f.flight_airline,
+		        f.flight_model,
+		        flight_depart_time,
+		        flight_arrive_time,
+		        f.depart_airport,
+		        f.arrive_airport
+		) X
+		WHERE rn BETWEEN #{startNo} AND #{endNo}
+	</select>
+	
+	<select id="flightListFilter" resultType="flightVO" parameterType="flightVO">
+		 SELECT ROWNUM, X.*
+		 FROM (
+		    SELECT 
+		        ROW_NUMBER() OVER (
+		        ORDER BY
+		        <if test="sortOption == 'depart_time'">
+					f.flight_depart_time ASC
+				</if>
+				<if test="sortOption == 'adult_price'">
+					MIN(s.adult_price) ASC
+				</if>
+				<if test="sortOption == 'duration'">
+					(f.flight_arrive_time - f.flight_depart_time) ASC
+				</if>
+				) AS rn,
+		        f.flight_no,
+		        f.flight_airline,
+		        f.flight_model,
+		        TO_CHAR(f.flight_depart_time, 'HH24:MI') flight_depart_time,
+		        TO_CHAR(f.flight_arrive_time, 'HH24:MI') flight_arrive_time,
+		        f.depart_airport,
+		        f.arrive_airport,
+		        MIN(s.adult_price) adult_price,
+		        EXTRACT(DAY FROM (f.flight_arrive_time - f.flight_depart_time)) * 24 +
+		        EXTRACT(HOUR FROM (f.flight_arrive_time - f.flight_depart_time)) AS duration_hour,
+		        EXTRACT(MINUTE FROM (f.flight_arrive_time - f.flight_depart_time)) AS duration_minute
+		    FROM flight f 
+		    INNER JOIN flight_seat s ON (f.flight_no = s.flight_no)
+		    WHERE 
+		        f.depart_airport = #{departAirport}
+		        AND f.arrive_airport = #{arriveAirport}
+		        AND TO_CHAR(f.flight_depart_time, 'YYYYMMDD') = #{flightDepartTime}
+		    GROUP BY
+		        f.flight_no,
+		        f.flight_airline,
+		        f.flight_model,
+		        flight_depart_time,
+		        flight_arrive_time,
+		        f.depart_airport,
+		        f.arrive_airport
+		) X
+		WHERE rn BETWEEN #{startNo} AND #{endNo}
+	</select> 
+	
+	<!-- 비행기 좌석 및 비행기 예약번호 조회 -->
+	<select id="selectSeats" resultType="flightVO" parameterType="string">
+		SELECT
+		    s.flight_seat_no, 
+		    s.adult_price,
+            s.child_price,
+		    rs.freservation_no
+		FROM flight_seat s
+		LEFT OUTER JOIN flight_reservation_seat rs ON 
+			(s.flight_seat_no = rs.flight_seat_no AND s.flight_no = rs.flight_no)
+		WHERE s.flight_no = #{flightNo}
+		ORDER BY
+		    REGEXP_SUBSTR(s.flight_seat_no, '[A-Z]+'),
+		    TO_NUMBER(REGEXP_SUBSTR(s.flight_seat_no, '\d+'))
+	</select>
+	
+	<!-- 비행기 예약내역 조회 -->
+	<select id="reservationDetail" parameterType="string" resultType="flightVO">
+		SELECT 
+		     f.flight_no
+		    ,f.flight_airline
+		    ,f.flight_model
+            ,TO_CHAR(f.flight_depart_time, 'yyyy"년" mm"월" dd"일"') AS flight_date
+		    ,TO_CHAR(f.flight_depart_time, 'HH24:MI') flight_depart_time
+		    ,TO_CHAR(f.flight_arrive_time, 'HH24:MI') flight_arrive_time
+		    ,f.depart_airport
+		    ,f.arrive_airport
+		    ,EXTRACT(DAY FROM (f.flight_arrive_time - f.flight_depart_time)) * 24 +
+		     EXTRACT(HOUR FROM (f.flight_arrive_time - f.flight_depart_time)) AS duration_hour
+		    ,EXTRACT(MINUTE FROM (f.flight_arrive_time - f.flight_depart_time)) AS duration_minute
+		FROM flight f INNER JOIN flight_seat s ON(f.flight_no = s.flight_no)
+        WHERE f.flight_no = #{flightNo}
+        GROUP BY
+		    f.flight_no
+		    ,f.flight_airline
+		    ,f.flight_model
+		    ,flight_depart_time
+		    ,flight_arrive_time
+		    ,f.depart_airport
+		    ,f.arrive_airport
+	</select>
+	
+	<!-- 지정 공항 호출 -->
+	<select id="distinctAirport" parameterType="String" resultType="String">
+		SELECT airport_code
+		FROM airport
+		WHERE airport_name = #{airportName}
+	</select>
+	
+	
+	<!-- 비행기 예약 탑승객 등록 -->
+	<insert id="insertPassenger" parameterType="flightVO" useGeneratedKeys="true">
+		<selectKey keyProperty="passengerNo" resultType="string" order="BEFORE">
+			select seq_passenger_no.nextval from dual
+		</selectKey>
+		INSERT INTO passenger(
+		    passenger_no
+		    ,passenger_email
+		    ,passenger_phone
+		    ,passenger_firstname
+		    ,passenger_lastname
+		    ,passport_no
+		    ,passport_end_date
+		    ,passenger_birth
+		) VALUES(
+		    #{passengerNo}
+		    ,#{passengerEmail}
+		    ,#{passengerPhone}
+		    ,#{passengerFirstname}
+		    ,#{passengerLastname}
+		    ,#{passportNo}
+		    ,#{passportEndDate}
+		    ,#{passengerBirth}
+		)
+	</insert>
+	
+	<!-- 비행기 예약정보 등록 -->
+	<insert id="insertReservation" parameterType="flightVO" useGeneratedKeys="true">
+		<selectKey keyProperty="freservationNo" resultType="string" order="BEFORE">
+			select seq_freservation_no.nextval from dual
+		</selectKey>
+		INSERT INTO flight_reservation (
+		    freservation_no
+		    ,mem_no
+		    ,freservation_total_price
+		    ,freservation_date
+		    ,freservation_passenger_count
+		) VALUES (
+		    #{freservationNo}
+		    ,#{memNo}
+		    ,#{freservationTotalPrice}
+		    ,SYSDATE
+		    ,#{freservationPassengerCount}
+		)
+	</insert>
+	
+	<!-- 비행기 예약 좌석 등록 -->
+	<insert id="insertReservationSeat" parameterType="flightVO">
+		INSERT INTO flight_reservation_seat(
+		    passenger_no
+		    ,flight_seat_no
+		    ,freservation_no
+		    ,freservation_price
+		    ,flight_no
+		) values(
+		 	#{passengerNo}
+		 	,#{flightSeatNo}
+		 	,#{freservationNo}
+		 	,#{freservationPrice}
+		 	,#{flightNo}
+		)
+	</insert>
+	      
+	<insert id="insertPayment" parameterType="map">
+		INSERT INTO payment(
+		     payment_no
+		    ,freservation_no
+		    ,mem_no
+		    ,payment_total_price
+		    ,payment_date
+		)VALUES(
+		     seq_payment.nextval
+		    , #{freservationNo}
+		    , #{memNo}
+		    , #{paymentTotalPrice}
+		    , SYSDATE
+		) 
+	</insert>
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,289 @@
+@charset "UTF-8";
+#dashboard {
+	background: white;
+}
+
+.input-container {
+	display: flex;
+	align-items: center;
+	border: 1px solid rgb(221, 221, 221);
+	border-radius: 20px;
+	padding: 5px;
+	margin-left: 10px;
+	cursor: pointer;
+}
+
+.input-container:first-child {
+	width: 17%;
+	margin-left: 0;
+	margin-right: 10px;
+}
+
+.input-container span {
+	text-align: center;
+	margin-right: 3px;
+	color: black;
+	margin-left: 8px;
+}
+
+svg {
+	height: 100%;
+	width: 16px;
+	margin-right: 5px;
+}
+
+#addAcc, #accInactive, #accActive {
+	background: white;
+	border: 1px solid black;
+	border-radius: 10px;
+}
+
+#addAcc:hover, #accInactive:hover, #accActive:hover {
+	box-shadow: 0 1px 3px 0px rgba(0, 0, 0, 0.5);
+}
+
+#addAcc span, #accInactive span, #accActive span {
+	font-weight: bold;
+	color: black;	
+}
+
+label {
+	display: flex;
+	align-items: center;
+}
+
+input[type="text"] {
+	border: none;
+	padding: 5px;
+	height: 100%;
+	background: none;
+	flex: 1;
+}
+
+input[type="checkbox"] {
+    height: 15px;
+    width: 15px;
+    outline: none;
+    margin: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    display: block;
+    background-color: #fff;
+    border: 1px solid #dbdbdb;
+    box-shadow: 0 1px 3px 0px rgba(0, 0, 0, 0.06);
+    opacity: 1;
+    border-radius: 3px;
+    padding: 0;
+    vertical-align: middle;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+tr {
+	border-bottom: 1px solid rgb(221, 221, 221);
+	text-align: center;
+}
+
+th {
+	text-align: center;
+	margin-bottom: 3px;
+}
+
+th:first-child, td:first-child {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-top: 6px;
+}
+
+tbody td:nth-child(2) {
+    height: 60px;
+    width: 20%;
+}
+
+tbody td input[type="checkbox"] {
+	margin-top: 15px;
+}
+
+tbody td button {
+	border: 1px solid black;
+	border-radius: 10px;
+	background: white;
+	font-weight: bold;
+	color: black;
+}
+
+img {
+	width: 60px;
+    height: 40px;
+    margin-right: 5px;
+}
+
+.accInfo {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	float: left;
+	margin-left: 10px;
+	max-width: 350px;
+  	white-space: nowrap;
+  	overflow: hidden;
+  	text-overflow: ellipsis;
+}
+
+th:nth-child(2) {
+	text-align: left;
+}
+
+th:nth-child(2) span {
+	margin-left: 10px;
+}
+
+td:nth-child(2) span {
+	display: -webkit-box;
+	-webkit-line-clamp: 1;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+button:hover {
+	box-shadow: 0 1px 3px 0px rgba(0, 0, 0, 0.5);
+}
+
+#searchIcon {
+	display: block;
+	fill: none;
+	height: 16px;
+	width: 16px;
+	stroke: currentcolor;
+	stroke-width: 2; 
+	overflow: visible;
+}
+
+.filterOption {
+	display: none;
+    top: 100%;
+    left: 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    background: white;
+    width: 200px;
+    height: 200px;
+    position: absolute;
+    z-index: 999;
+    border: 1px solid rgb(221, 221, 221);
+    border-radius: 10px;
+    transform: translate(-20%, 5px);
+    padding: 10px 20px 10px 20px;
+}
+
+.input-container {
+	position: relative;
+}
+
+.optionButton {
+	border: 1px solid rgb(221, 221, 221);
+	border-radius: 50%;
+	width: 30px;
+	height: 30px;
+	color: black;
+	text-align: center;
+}
+
+.fa-minus, .fa-plus {
+	margin-top: 10px;
+}
+
+input[name="qtyInput"] {
+	flex: 0;
+}
+
+.qtyButtons {
+	margin: 0;
+}
+
+hr {
+	margin-bottom: 10px;
+	margin-top: 10px;
+}
+
+#roomApply, #convenienceApply, #statusApply {
+	float: right;
+    margin: 0;
+    border: 1px solid rgb(221,221,221);
+    background: black;
+    border-radius: 10px;
+    color: white;
+    width: 100px;
+    height: 35px;
+}
+
+.filterOption:hover {
+	cursor: default;
+}
+
+.minusBtn:hover, .plusBtn:hover {
+	cursor: pointer;
+}
+
+.convenience {
+	width: 400px;
+	height: 345px;
+}
+
+.accStatus {
+	height: 185px;
+}
+
+
+.loading-icon {
+   position: absolute;
+   left: 50%;
+   transform: translate(-50%, -50%);
+   
+   display: inline-block;
+   width: 20px;
+   height: 20px;
+   border: 2px solid #ccc;
+   border-top-color: #000;
+   border-radius: 50%;
+   animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.nonImg {
+	background: lightgray;
+	width: 60px;
+	height: 40px;
+	margin-right: 5px;
+	min-width: 60px;
+}
+
+#resetFilter {
+	justify-content: center;
+    align-items: center;
+    display: flex;
+    margin-left: 10px;
+    text-decoration: underline;
+    color: black;
+}
+
+#resetFilter:hover {
+	cursor: pointer;
+}
+
+.accTR:hover {
+	background: rgb(221, 221, 221);
+}

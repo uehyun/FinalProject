@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.travelmaker.main.mapper.MainMapper">
+	
+	<sql id="category">
+		<if test="cateNum != null and cateNum != ''">
+			and a.acc_category = #{cateNum}
+		</if>
+	</sql>
+
+	<resultMap type="acommodationVO" id="acommodationList">
+		<id property="accNo" column="acc_no"/>
+		<result property="accNo" column="acc_no"/>
+		<result property="memNo" column="mem_no"/>
+		<result property="accName" column="acc_name"/>
+		<result property="accContent" column="acc_content"/>
+		<result property="accCategory" column="acc_category"/>
+		<result property="accReservationMessage" column="acc_reservation_message"/>
+		<result property="accPostcode" column="acc_postcode"/>
+		<result property="accLocation" column="acc_location"/>
+		<result property="accPrice" column="acc_price"/>
+		<result property="accStandardCheckin" column="acc_standard_checkin"/>
+		<result property="accStandardCheckout" column="acc_standard_checkout"/>
+		<result property="accStatus" column="acc_status"/>
+		<result property="accScore" column="acc_score"/>
+		<result property="accLogitide" column="acc_logitide"/>
+		<result property="accLatitude" column="acc_latitude"/>
+		<result property="accWishlistCount" column="acc_wishlist_count"/>
+		<result property="accCount" column="acc_count"/>
+		<result property="accReservationCount" column="acc_reservation_count"/>
+		<result property="accAppropriatePeople" column="acc_appropriate_people"/>
+		<result property="accGuestExtraPrice" column="acc_guest_extra_price"/>
+		<result property="accCleanFee" column="accc_clean_fee"/>
+		<result property="reservationInvailableDate" column="reservation_invailable_date"/>
+		<result property="accAttGroupNo" column="acc_att_group_no"/>
+		<result property="eventNo" column="event_no"/>
+		
+		
+		<collection property="files" resultMap="fileMap"></collection>
+	</resultMap>
+	
+	<resultMap type="fileVO" id="fileMap">
+		<result property="attGroupNo" column="att_group_no"/>
+		<result property="saveName" column="save_name"/>
+		<result property="attPath" column="att_path"/>
+	</resultMap>
+	
+	<select id="getAllAcommodations" parameterType="map" resultMap="acommodationList">
+		select SUBSTR(a.acc_location, INSTR(a.acc_location, ' ') + 1, INSTR(a.acc_location, ' ', -1) - INSTR(a.acc_location, ' ') - 1) as acc_location, a.*, att.*
+		from accommodation a
+		left join attach att on a.acc_att_group_no = att.att_group_no
+		where 
+			1=1
+		and
+			a.acc_count >= 9 and att.save_name like 's_%'
+		<include refid="category"></include>
+		order by cast(att.att_no AS INT) asc
+	</select>
+	
+	<select id="accommodationDetailByAccNo" parameterType="String" resultMap="acommodationList">
+		select SUBSTR(a.acc_location, INSTR(a.acc_location, ' ') + 1, INSTR(a.acc_location, ' ', -1) - INSTR(a.acc_location, ' ') - 1) as acc_location, a.*, att.*
+		from accommodation a
+		left join attach att on a.acc_att_group_no = att.att_group_no
+		where a.acc_count >= 9 and a.acc_no like #{accNo} and att.save_name not like 's_%'
+		order by att.att_no asc
+	</select>
+
+	<select id="accommodationOptionsByAccNo" parameterType="String" resultType="accoptionVO">
+		SELECT ao.*, i.*
+		FROM ACC_OPTION ao
+		LEFT JOIN OPTIONITEM i ON ao.option_no = i.option_no
+		where ao.acc_no like #{accNo}
+		order by ao.option_no
+	</select>
+	<select id="accommodationInvalidDateByAccNo" parameterType="String" resultType="String">
+		select
+		    to_char(invalid_date, 'yyyy-mm-dd') as invalid_date,
+		    acc_no
+		from acc_invalid_date
+		where acc_no = #{accNo}
+	</select>
+	<select id="accommodationReservationDateByAccNo" parameterType="String" resultType="accreservation">
+		SELECT
+		    ARES_NO, MEM_NO, ACC_NO, TO_CHAR(ARES_CHECKIN_DATE, 'YYYY-MM-DD') AS ARES_CHECKIN_DATE, TO_CHAR(ARES_CHECKOUT_DATE, 'YYYY-MM-DD') AS ARES_CHECKOUT_DATE, ARES_GUEST_COUNT, ARES_EXTRA_GUEST, ARES_STATUS, ARES_REQUEST, ARES_REG_DATE, ARES_MOD_DATE, ARES_DEL_DATE, ARES_ACC_DATE_COUNT, ARES_CHECKIN, ARES_CHECKOUT, ARES_TOTAL_PRICE, ARES_PER_PRICE, ARES_EXTRA_PRICE, ARES_DISCOUNT_PRICE, USED_COUPON
+		FROM ACC_RESERVATION
+		WHERE acc_no = #{accNo}
+	</select>
+	
+	<select id="accommodationEventByAccNo" parameterType="String" resultType="event">
+		select 
+		    acc_no, 
+		    discount_type, 
+		    discount_rate
+		from acc_discount 
+		where acc_no like #{accNo}
+	</select>
+	
+	<select id="hostProfileByAccNo" parameterType="String" resultType="member">
+		select m.mem_no, m.mem_id, m.mem_name, m.mem_phone, m.mem_email, m.mem_profile_path, m.mem_pre_language, to_char(m.mem_reg_date, 'YYYY-MM') as mem_reg_date
+		from member m
+		left join ACCOMMODATION a on m.mem_no = a.mem_no
+		where a.acc_no like #{accNo}
+	</select>
+	
+	<select id="getCategory" resultType="optionVO">
+		select 
+		    option_no
+		    , option_name
+		    , att_group_no
+		from
+		    optionitem
+		where
+		    option_no like '%'||'cot_'||'%'
+	</select>
+	
+	<select id="memNoById" parameterType="String" resultType="String">
+		select mem_no from member where mem_id = #{memName}
+	</select>
+	
+	<insert id="insertWishlistCategory" parameterType="wishlistCategoryVO" useGeneratedKeys="true">
+		<selectKey keyProperty="wishlistCategoryNo" resultType="String" order="BEFORE">
+			SELECT 'wish_' || SEQ_WISHLISTCATEGORY.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO 
+			wishlist_category(wishlist_category_no, mem_no, wishlist_category_name) 
+		values
+			(#{wishlistCategoryNo}, #{memNo}, #{wishlistCategoryName})
+	</insert>
+	
+	<insert id="insertWishlist" parameterType="wishlistVO">
+		insert into 
+			wishlist(wishlist_category_no, acc_no)
+		values
+			(#{wishlistCategoryNo}, #{accNo})
+	</insert>
+	
+	<select id="selectWishCategoryList" parameterType="String" resultType="wishlistCategoryVO">
+		SELECT 
+		    wc.WISHLIST_CATEGORY_NO, 
+		    wc.MEM_NO, 
+		    wc.WISHLIST_CATEGORY_NAME,
+		    MIN(a.att_path) as attPath
+		FROM 
+			WISHLIST wl
+		RIGHT JOIN WISHLIST_CATEGORY wc ON wl.WISHLIST_CATEGORY_NO = wc.WISHLIST_CATEGORY_NO
+		LEFT JOIN attach a ON wl.acc_no = a.att_group_no
+		WHERE 
+			wc.MEM_NO = #{memNo}
+		GROUP BY 
+			wc.WISHLIST_CATEGORY_NO, wc.MEM_NO, wc.WISHLIST_CATEGORY_NAME
+	</select>
+	
+	<select id="selectIsWished" resultType="int">
+		SELECT COUNT(*) AS isWished
+	    FROM WISHLIST wl
+	    JOIN WISHLIST_CATEGORY wc ON wl.WISHLIST_CATEGORY_NO = wc.WISHLIST_CATEGORY_NO
+	    WHERE wc.MEM_NO = #{memNo}
+	    AND wl.ACC_NO = #{accNo}
+	</select>
+	
+	
+	<delete id="deleteWishList" parameterType="hashMap">
+		DELETE FROM WISHLIST
+		WHERE acc_no IN (
+		    SELECT 
+		        wl.acc_no
+		    FROM WISHLIST wl
+		    RIGHT JOIN WISHLIST_CATEGORY wc ON wl.WISHLIST_CATEGORY_NO = wc.WISHLIST_CATEGORY_NO
+		    WHERE wc.MEM_NO = #{memNo}
+		    AND wl.acc_no = #{accNo}
+		)
+	</delete>
+	
+	<insert id="isnertAccBlame" parameterType="blameVO">
+		insert into blame
+		values ('bla_' || seq_blame.nextval, '숙소', #{blameReason}, '대기', sysdate, #{memNo}, null, #{accNo}, null, null, null, #{blameMem})
+	</insert>
+	
+	
+	<!-- admin 이벤트 불러오기 -->
+	<select id="selectAdminEventByEventNo" parameterType="String" resultType="adminEventVO">
+		select 
+		    event_no, 
+		    event_title, 
+		    event_content, 
+		    event_hit, 
+		    event_discount_rate, 
+		    att_group_no, 
+		    option_no, 
+		    event_status
+		from event
+		where 
+		    event_no like #{eventNo} and event_status like '활성'
+	</select>
+	
+	<select id="accommodationReservationDetailByAccNo" parameterType="String" resultType="acommodationVO">
+		
+		SELECT *
+		FROM (
+		    SELECT 
+		        a.acc_no,
+		        a.mem_no,
+		        a.acc_name,
+		        a.acc_price,
+		        a.acc_location,
+		        a.acc_standard_checkin,
+		        a.acc_standard_checkout,
+		        att.att_path acc_thumbnail_path
+		    FROM ACCOMMODATION a
+		    LEFT JOIN attach att ON (a.ACC_ATT_GROUP_NO = att.att_group_no)
+		    WHERE acc_no LIKE #{accNo} and att.save_name like 's_%'
+		    ORDER BY TO_NUMBER(att.att_no)
+		)
+		WHERE ROWNUM = 1
+	</select>
+	
+	<select id="memberBymemId" parameterType="String" resultType="member">
+		select 
+		    mem_no, 
+		    mem_id, 
+		    mem_name, 
+		    mem_phone, 
+		    mem_email
+		from member
+		where mem_id like #{memId}
+	</select>
+	
+	<insert id="insertAccReservation" parameterType="accreservation" useGeneratedKeys="true">
+		<selectKey keyProperty="aresNo" resultType="String" order="BEFORE">
+			SELECT 'ares_' || SEQ_ARES.NEXTVAL FROM DUAL
+		</selectKey>
+		
+		insert into acc_reservation(ARES_NO, MEM_NO, ACC_NO, ARES_CHECKIN_DATE, ARES_CHECKOUT_DATE, ARES_GUEST_COUNT, ARES_EXTRA_GUEST, ARES_STATUS, ARES_REQUEST, ARES_REG_DATE, ARES_ACC_DATE_COUNT, ARES_CHECKIN, ARES_CHECKOUT, ARES_TOTAL_PRICE, ARES_PER_PRICE, ARES_EXTRA_PRICE, ARES_DISCOUNT_PRICE) 
+		values (#{aresNo}, #{memNo}, #{accNo}, TO_DATE(#{aresCheckinDate}, 'YYYY/MM/DD'), TO_DATE(#{aresCheckoutDate}, 'YYYY/MM/DD'), #{aresGuestCount}, ${aresExtraGuest}, '0', #{aresRequest}, sysdate, #{aresAccDateCount}, #{aresCheckin}, #{aresCheckout}, #{aresTotalPrice}, #{aresPerPrice}, #{aresExtraPrice}, #{aresDiscountPrice})
+	</insert>
+	
+	<insert id="insertPayment" parameterType="paymentVO">
+		insert into PAYMENT(PAYMENT_NO, ARES_NO, MEM_NO, ACC_NO, PAYMENT_TOTAL_PRICE, PAYMENT_DATE)
+		values ('pay_' || SEQ_PAYMENT.NEXTVAL, #{aresNo}, #{memNo}, #{accNo}, #{paymentTotalPrice}, sysdate)
+	</insert>
+	
+	<!-- <select id="getAllAcommodations" resultType="acommodationVO">
+		select 
+		    ACC_NO, MEM_NO, ACC_NAME, ACC_CONTENT, ACC_POSTCODE, 
+		    ACC_LOCATION, ACC_PRICE, ACC_STANDARD_CHECKIN, ACC_STANDARD_CHECKOUT, ACC_STATUS, 
+		    ACC_SCORE, ACC_LOGITIDE, ACC_LATITUDE, ACC_WISHLIST_COUNT, ACC_COUNT, 
+		    ACC_RESERVATION_COUNT, ACC_APPROPRIATE_PEOPLE, ACC_GUEST_EXTRA_PRICE, ACC_REG_DATE, ACC_MOD_DATE, 
+		    ACC_DEL_DATE, ACC_CLEAN_FEE, RESERVATION_INVAILABLE_DATE, ACC_ATT_GROUP_NO, EVENT_NO, 
+		    ACC_CATEGORY, ACC_RESERVATION_MESSAGE, ACC_THUMBNAIL_PATH
+		from accommodation
+		where acc_status >= 9
+	</select> -->
+	
+	
+	<!-- 메인 페이징 처리 -->
+	<select id="selectAccCount" parameterType="pagingVO" resultType="int">
+		select 
+		    count(*)
+		from accommodation a
+		inner join acc_option b
+		    on a.acc_no = b.acc_no
+		    and b.OPTION_NO = 'con_001'
+		    and b.OPTION_COUNT <![CDATA[>=]]> #{guest}
+		left join acc_invalid_date c
+		    on b.acc_no = c.acc_no
+		where 1=1
+		<if test="category != null and category != ''">
+			and a.acc_category = #{category}
+		</if>
+		and a.acc_status = '활성'
+		and a.acc_count = 10
+		<if test="memNo != null and memNo != ''">
+			and a.mem_no != #{memNo}
+		</if>
+		<if test="juso != null and juso != ''">
+			and a.acc_location like '%'||#{juso}||'%'
+		</if>
+		<if test="checkIn != null and checkIn != ''">
+			<![CDATA[
+				AND (c.INVALID_DATE IS NULL OR c.INVALID_DATE < #{checkIn} OR c.INVALID_DATE > #{checkOut})
+			]]>
+		</if>
+		
+	</select>
+	
+	<select id="selectAccList" parameterType="pagingVO" resultType="acommodationVO">
+		select
+			l.*
+		from(
+			select
+				g.*, row_number() over (order by g.acc_no desc) rnum
+			from(
+				select 
+				    a.acc_no
+				    ,a.acc_name
+				    ,acc_location
+				    ,acc_price
+				    ,a.acc_score
+				from accommodation a
+				inner join acc_option b
+				    on a.acc_no = b.acc_no
+				    and b.OPTION_NO = 'con_001'
+				    and b.OPTION_COUNT <![CDATA[>=]]> #{guest}
+				left join acc_invalid_date c
+				    on b.acc_no = c.acc_no
+				where 1=1
+				<if test="category != null and category != ''">
+					and a.acc_category = #{category}
+				</if>
+				and a.acc_status = '활성'
+				and a.acc_count = 10
+				<if test="memNo != null and memNo != ''">
+					and a.mem_no != #{memNo}
+				</if>
+				<if test="juso != null and juso != ''">
+					and a.acc_location like '%'||#{juso}||'%'
+				</if>
+				<if test="checkIn != null and checkIn != ''">
+					<![CDATA[
+						AND (c.INVALID_DATE IS NULL OR c.INVALID_DATE < #{checkIn} OR c.INVALID_DATE > #{checkOut})
+					]]>
+				</if>
+				order by a.acc_no asc
+			)g
+		)l
+		<![CDATA[
+			where l.rnum >= #{startRow} and l.rnum <= #{endRow}
+		]]>
+	</select>
+	
+	<select id="getImg" parameterType="String" resultType="fileVO">
+		SELECT att_path
+			FROM (
+			  SELECT att_path, ROWNUM AS rnum
+			  FROM attach
+			  WHERE att_group_no = #{accNo}
+			  AND save_name LIKE 's_%'
+			  ORDER BY CAST(att_no AS INT) ASC
+			)
+			WHERE rnum <![CDATA[<=]]> 5
+	</select>
+	
+	<select id="selectReviewByAccNo" parameterType="String" resultType="memberReview">
+		SELECT 
+		    r.ACC_REVIEW_NO AS MEM_REVIEW_NO,
+		    r.MEM_NO AS MEM_NO,
+		    r.ACC_NO AS ACC_NO, 
+		    r.ACC_REVIEW_CONTENT AS MEM_REVIEW_CONTENT,
+		    TO_CHAR(r.ACC_REVIEW_REG_DATE, 'YY"년" MM"월"') AS MEM_REVIEW_REG_DATE,
+		    
+		    m.MEM_ID AS HOST_ID,
+		    m.MEM_NAME AS HOST_NO,
+		    m.MEM_PROFILE_PATH AS HOST_PROFILE_PATH
+		FROM ACC_REVIEW r
+		INNER JOIN MEMBER m ON(r.MEM_NO = m.MEM_NO)
+		WHERE r.ACC_NO = #{accNo}
+		ORDER BY MEM_REVIEW_NO DESC
+	</select>
+	
+	<select id="selectReviewScoreByAccNo" parameterType="String" resultType="reviewScoreVO">
+		SELECT
+		    rs.REVIEW_SCORE_CATEGORY,
+		    ROUND(AVG(rs.ACC_REVIEW_SCORE), 1) AS ACC_REVIEW_SCORE
+		FROM
+		    ACC_REVIEW r
+		    INNER JOIN REVIEW_SCORE rs ON r.ACC_REVIEW_NO = rs.ACC_REVIEW_NO
+		WHERE
+		    r.ACC_NO like #{accNo}
+		GROUP BY
+		    rs.REVIEW_SCORE_CATEGORY
+	</select>
+	
+	<update id="updateAccHit" parameterType="string">
+		UPDATE accommodation
+		   SET acc_hit = acc_hit + 1
+		 WHERE acc_no = #{accNo}
+	</update>
+</mapper>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.travelmaker.trip.mapper.TBoardReplyMapper">
+
+	<select id="list" parameterType="String" resultType="tBoardReplyVO">
+		select
+			tbr.treply_no
+			, m.mem_id as mem_no
+			, tbr.tboard_no
+			, tbr.treply_content
+			, to_char(tbr.treply_reg_date, 'yyyy-mm-dd HH24:MM') as treply_reg_date
+			, m.mem_profile_path
+		from
+			travel_board_reply tbr
+		left join
+			member m on m.mem_no = tbr.mem_no
+		where
+			tboard_no = #{tboardNo}
+		and
+			treply_del_yn = 'N'
+		order by
+			tbr.treply_reg_date asc
+	</select>
+	
+	<select id="count" parameterType="String" resultType="int">
+		select
+		    count(treply_no)
+		from 
+			travel_board_reply
+		where
+		    tboard_no = #{tboardNo}
+		and 
+		    treply_del_yn = 'N'
+	</select>
+	
+	<insert id="insert" parameterType="tBoardReplyVO" useGeneratedKeys="true">
+		<selectKey keyProperty="treplyNo" resultType="String" order="BEFORE">
+			select 'tbr_'||seq_treply.nextval from dual
+		</selectKey>
+			insert into travel_board_reply (
+				treply_no
+				, mem_no
+				, tboard_no
+				, treply_content
+				, treply_reg_date
+				, treply_del_yn
+			) values (
+				#{treplyNo}, #{memNo}, #{tboardNo}, #{treplyContent}, sysdate, 'N'
+			)
+	</insert>
+	
+	<update id="update" parameterType="tBoardReplyVO">
+		update
+			travel_board_reply
+		set
+			treply_content = #{treplyContent}
+			, treply_mod_date = sysdate
+		where
+			treply_no = #{treplyNo} and mem_no = #{memNo}
+	</update>
+	
+	<update id="delete" parameterType="tBoardReplyVO">
+		update
+			travel_board_reply 
+		set
+			treply_del_yn = 'Y',
+			treply_del_date = sysdate
+		where
+			treply_no = #{treplyNo} and mem_no = #{memNo}
+	</update>
+</mapper>

@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.travelmaker.trip.mapper.TBoardMapper">
+
+	<resultMap type="tBoardVO" id="tBoardMap">
+		<id property="travelNo" column="travel_no"/>
+		<result property="travelNo" column="travel_no"/>
+		<result property="tboardNo" column="tboard_no"/>
+		<result property="tboardTitle" column="tboard_title"/>
+		<result property="tboardContent" column="tboard_content"/>
+		<result property="tboardHit" column="tboard_hit"/>
+		<result property="tboardRegDate" column="tboard_reg_date"/>
+		<result property="tboardPublicYn" column="tboard_public_yn"/>
+		<result property="tboardWriter" column="tboard_writer"/>
+		<collection property="travelList" resultMap="travelMap"/>
+		<collection property="travlDetailList" resultMap="travelDetailMap"/>
+	</resultMap>
+	
+	<resultMap type="TravelScheduleVO" id="travelMap">
+		<id property="travelNo" column="travel_no"/>
+		<result property="travelName" column="travel_name"/>
+		<result property="travelStartDate" column="travel_start_date"/>
+		<result property="travelEndDate" column="travel_end_date"/>
+		<result property="travelImgPath" column="travel_img_path"/>
+	</resultMap>
+	
+	<resultMap type="TravelScheduleDetailVO" id="travelDetailMap">
+		<id property="travelScheduleDetailsNo" column="travel_schedule_details_no"/>
+		<result property="id" column="id"/>
+		<result property="placeName" column="place_name"/>
+		<result property="placeUrl" column="place_url"/>
+		<result property="categoryGroupName" column="category_group_name"/>
+		<result property="phone" column="phone"/>
+		<result property="x" column="x"/>
+		<result property="y" column="y"/>
+		<result property="memo" column="memo"/>
+		<result property="travelDate" column="travel_date"/>
+	</resultMap>
+	
+	<select id="selectOne" parameterType="String" resultMap="tBoardMap">
+  		select
+			tb.travel_no as travel_no,
+			tb.tboard_no as tboard_no,
+			m.mem_id as tboard_writer,
+			tb.tboard_title as tboard_title,
+			tb.tboard_content as tboard_content,
+			tb.tboard_hit as tboard_hit,
+			to_char(tb.tboard_reg_date, 'yyyy-mm-dd') as tboard_reg_date,
+			to_char(tb.tboard_mod_date, 'yyyy-mm-dd') as tboard_mod_date,
+			tb.tboard_public_yn as tboard_public_yn,
+			ts.travel_name as travel_name,
+			to_char(ts.travel_start_date, 'yyyy-mm-dd') as travel_start_date,
+			to_char(ts.travel_end_date, 'yyyy-mm-dd') as travel_end_date,
+			ts.travel_img_path as travel_img_path,
+			tsd.travel_schedule_details_no as travel_schedule_details_no,
+			tsd.id as id,
+			tsd.place_name as place_name,
+			tsd.place_url as place_url,
+			tsd.category_group_name as category_group_name,
+			tsd.phone as phone,
+			tsd.x as x,
+			tsd.y as y,
+			tsd.memo as memo,
+			tsd.travel_date as travel_date
+		from
+			travel_board tb
+		left join
+			travel_schedule ts on tb.travel_no = ts.travel_no
+		left join
+			travel_schedule_details tsd on ts.travel_no = tsd.travel_no
+		left join
+            member m on m.mem_no = tb.tboard_writer
+        where
+            tb.tboard_no = #{tboardNo}
+	</select>
+	
+	<insert id="insert" parameterType="tBoardVO" useGeneratedKeys="true">
+		<selectKey keyProperty="tboardNo" resultType="String" order="BEFORE">
+			select 'tbn_'||seq_tboard.nextval from dual 
+		</selectKey>
+			insert into travel_board (
+				tboard_no, travel_no, tboard_title, tboard_content, tboard_hit,
+				tboard_reg_date, tboard_del_yn, tboard_public_yn, tboard_writer
+			) values (
+				#{tboardNo}, #{travelNo}, #{tboardTitle}, #{tboardContent}, 0,
+				sysdate, 'N', #{tboardPublicYn}, #{tboardWriter}
+			)
+	</insert>
+	
+	<update id="updateHit" parameterType="String">
+		update travel_board
+		set
+			tboard_hit = tboard_hit +1
+		where
+			tboard_no = #{tboardNo}
+	</update>
+	
+	<update id="update" parameterType="tBoardVO">
+		update travel_board
+		set
+			tboard_title = #{tboardTitle},
+			tboard_content = #{tboardContent},
+			tboard_public_yn = #{tboardPublicYn},
+			tboard_mod_date = sysdate
+		where
+			tboard_no = #{tboardNo} and tboard_writer = #{tboardWriter}
+	</update>
+	
+	<delete id="delete">
+		update travel_board
+		set
+			tboard_del_yn = 'Y'
+		where
+			tboard_no = #{tboardNo} and tboard_writer = #{memNo}
+	</delete>
+	
+ 	<!-- 인기 게시글 출력 -->
+	<select id="popList" resultType="tBoardVO">
+			select * from (
+			    select 
+			        tb.tboard_no,
+			        tb.travel_no,
+			        to_char(tb.tboard_reg_date, 'yyyy-mm-dd') as tboard_reg_date,
+			        m.mem_id as tboard_writer,
+			        tb.tboard_title,
+			        ts.travel_img_path,
+			        tb.tboard_public_yn,
+			        tb.tboard_hit
+			    from 
+			        travel_board tb
+			    left join
+			        member m on tb.tboard_writer = m.mem_no
+			    left join
+			        travel_schedule ts on tb.travel_no = ts.travel_no
+			    where
+			        tb.tboard_public_yn = 'N'
+			    and
+			        tb.tboard_del_yn = 'N'
+			    order by
+			        tb.tboard_hit desc
+			) 
+			<![CDATA[
+				where rownum <=3
+			]]>
+	</select>
+	
+	<select id="selectTBoardCount" parameterType="pagingVO" resultType="int">
+		select count(tboard_no)
+		from travel_board
+		where 1=1
+		<if test="searchWord != null">
+			and (tboard_title like '%'||#{searchWord}||'%')
+		</if>
+	</select>
+	
+	<select id="selectTBoardList" parameterType="pagingVO" resultType="tBoardVO">
+		select
+			b.*
+		from(
+			select
+				a.*, row_number() over (order by a.tboard_reg_date desc) rnum
+			from(
+				select
+					tb.tboard_no,
+			        tb.travel_no,
+			        tb.tboard_title,
+			        tb.tboard_tag,
+			        tb.tboard_hit,
+			        to_char(tb.tboard_reg_date, 'yyyy-mm-dd') as tboard_reg_date,
+			        tb.tboard_mod_date,
+			        tb.tboard_public_yn,
+			        m.mem_id as tboard_writer,
+			        ts.travel_img_path
+				from 
+			        travel_board tb
+			    left join
+			        travel_schedule ts on tb.travel_no = ts.travel_no
+			    left join
+			        member m on tb.tboard_writer = m.mem_no  
+				where 1=1
+				and
+					(tb.tboard_public_yn = 'N' or tb.tboard_writer = #{memNo})
+        		and 
+        			tb.tboard_del_yn = 'N'
+				<if test="searchWord != null">
+					and (tboard_title like '%'||#{searchWord}||'%')
+				</if>
+			) a
+		) b
+		<![CDATA[
+			where b.rnum >= #{startRow} and b.rnum <= #{endRow}
+		]]>
+	</select>
+
+	<insert id="blame" parameterType="blameVO">
+		insert into blame
+		values ('bla_' || seq_blame.nextval, #{blameType}, #{blameReason}, '대기', sysdate, #{memNo}, null, null, #{boardNo}, null, null, #{blameMem})
+	</insert>
+	
+	<select id="selectBlame" parameterType="blameVO" resultType="int">
+		select count(*)
+		from blame
+		where
+			board_no = #{boardNo}
+		and
+			blame_mem = #{blameMem}
+	</select>
+</mapper>

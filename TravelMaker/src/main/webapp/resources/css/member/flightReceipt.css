@@ -1,0 +1,51 @@
+@charset "UTF-8";
+body {
+	font-weight: 0;
+}
+
+i {
+	color: red;
+}
+
+tr,th,td {
+	text-align: center;
+	color: black;
+}
+
+table {
+	margin-bottom: 0;
+}
+
+span {
+	font-weight: bold;
+	color: red;
+	font-size: 0.8rem;
+}
+
+#imgTd {
+	text-align: left;
+	padding-left: 10px;
+}
+
+#flightImg {
+	width: 50%;
+	height: 50%;
+}
+
+th:last-child, td:last-child {
+    text-align: center;
+}
+
+.myth {
+	background: lightgray;
+	width: 10%;
+}
+
+#priceTd {
+	font-weight: bold;
+	color: red;
+}
+
+#ordeplace {
+	padding: 20px;
+}

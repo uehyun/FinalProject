@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.travelmaker.utils.mapper.FileMapper">
+	<insert id="insertFile" parameterType="fileVO">
+		insert into attach (
+			att_group_no, att_no, att_ext, original_name, save_name, att_size,
+			att_reg_date, att_path
+		) values (
+			#{attGroupNo}, #{attNo}, #{attExt}, #{originalName}, #{saveName},
+			#{attSize}, sysdate, #{attPath}
+		)
+	</insert>
+	
+	<select id="getSaveName" parameterType="String" resultType="fileVO">
+		select 
+			att_group_no
+			, att_no
+			, save_name
+			, att_path
+		from attach 
+		where att_group_no = #{groupNo}
+		order by to_number(att_no) asc
+	</select>
+	
+	<delete id="deleteFile" parameterType="string">
+		DELETE FROM attach WHERE att_group_no = #{attGroupNo}
+	</delete>
+</mapper>

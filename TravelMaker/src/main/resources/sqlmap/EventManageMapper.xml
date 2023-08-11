@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.travelmaker.admin.mapper.EventManageMapper">
+
+	<select id="cotOptionItems" resultType="optionitemVo">
+		select OPTION_NO, OPTION_NAME, ATT_GROUP_NO from OPTIONITEM where substr(OPTION_NO, 1, instr(OPTION_NO, '_') -1) like 'cot'
+	</select>
+	
+	<select id="dupEventChk" parameterType="adminEventVO" resultType="int">
+		select count(*)
+		  from event where option_no = #{optionNo}
+		  and to_char(event_start_date, 'YYYY-MM-DD') <![CDATA[<]]> #{eventStartDate}
+		  and to_char(event_end_date, 'YYYY-MM-DD') <![CDATA[>]]> #{eventStartDate}
+	</select>
+
+	<insert id="insertEvent" parameterType="adminEventVO">
+		insert into event (event_no, event_title, event_start_date, event_end_date, event_reg_date, event_discount_rate, option_no, event_status)
+		values('evn_' || seq_event.nextval, #{eventTitle}, #{eventStartDate}, #{eventEndDate}, sysdate, #{eventDiscountRate}, #{optionNo}, '활성')
+	</insert>
+	
+	<select id="list" resultType="adminEventVO">
+		select
+		    event_no
+		    ,event_title
+		    ,event_content
+		    ,event_hit
+		    ,to_char(event_start_date, 'yyyy-mm-dd') as event_start_date
+		    ,to_char(event_end_date, 'yyyy-mm-dd') as event_end_date
+		    ,to_char(event_reg_date, 'yyyy-mm-dd') as event_reg_date
+		    ,to_char(event_mod_date, 'yyyy-mm-dd') as event_mod_date
+		    ,to_char(event_del_date, 'yyyy-mm-dd') as event_del_date
+		    ,event_discount_rate
+		    ,event_status
+		    ,e.att_group_no
+		    ,oi.option_no
+		    ,option_name
+		from
+		    event e
+		left join
+		    optionitem oi on e.option_no = oi.option_no
+		order by
+			event_status desc
+	</select>
+	
+	<update id="update" parameterType="adminEventVO">
+		update 
+			event
+		set
+			event_title = #{eventTitle}
+			,event_start_date = #{eventStartDate}
+			,event_end_date = #{eventEndDate}
+			,event_discount_rate = #{eventDiscountRate}
+			,option_no = #{optionNo}
+			,event_mod_date = sysdate
+		where
+			event_no = #{eventNo}
+	</update>
+	
+	<update id="okUpdate" parameterType="adminEventVO">
+		update
+			event
+		set
+			event_status = '활성'
+			,event_mod_date = sysdate
+			
+		where
+			event_no = #{eventNo}
+	</update>
+	
+	<update id="noUpdate" parameterType="adminEventVO">
+		update
+			event
+		set
+			event_status = '비활성'
+			,event_mod_date = sysdate
+		where
+			event_no = #{eventNo}
+	</update>
+	
+	<update id="delete" parameterType="adminEventVO">
+		update
+			event
+		set
+			event_status = '삭제',
+			event_del_date = sysdate
+		where
+			event_no = #{eventNo}
+	</update>
+</mapper>

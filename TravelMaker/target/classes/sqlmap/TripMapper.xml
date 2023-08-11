@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.travelmaker.trip.mapper.TripMapper">
+	<insert id="insert" parameterType="travelScheduleVO" useGeneratedKeys="true">
+		<selectKey keyProperty="travelNo" order="BEFORE" resultType="string">
+			select 'tra_'||seq_travel.nextval from dual
+		</selectKey>
+		insert into travel_schedule (
+			travel_no, travel_name, travel_start_date, travel_end_date, travel_status_yn
+		) values (
+			#{travelNo}, #{travelName}, #{travelStartDate}, #{travelEndDate}, 'Y'
+		) 
+	</insert>
+	
+	<update id="updatePicture" parameterType="travelScheduleVO">
+		update travel_schedule
+		set
+			travel_img_path = #{travelImgPath}
+		where travel_no = #{travelNo}
+	</update>
+	
+	<select id="myList" parameterType="String" resultType="travelScheduleVO">
+		select
+		  tm.travel_no,
+		  tm.mem_no,
+		  ts.travel_img_path,
+		  ts.travel_name,
+		  to_char(ts.travel_start_date, 'yyyy-mm-dd') as travel_start_date,
+		  to_char(ts.travel_end_date, 'yyyy-mm-dd') as travel_end_date,
+		  ts.travel_status_yn
+		from
+		  travel_member tm
+		join
+		  travel_schedule ts on tm.travel_no = ts.travel_no
+		where
+		  tm.mem_no = #{mem_no}
+		and
+		  ts.travel_status_yn = 'Y'
+	  	order by
+ 		  ts.travel_end_date desc
+	</select>
+	
+	
+	<select id="list" parameterType="String" resultType="travelScheduleVO">
+		SELECT
+		  tm.travel_no,
+		  tm.mem_no,
+		  ts.travel_img_path,
+		  ts.travel_name,
+		  to_char(ts.travel_start_date, 'yyyy-mm-dd') as travel_start_date,
+		  to_char(ts.travel_end_date, 'yyyy-mm-dd') as travel_end_date,
+		  ts.travel_status_yn
+		from
+		  travel_member tm
+		join
+		  travel_schedule ts on tm.travel_no = ts.travel_no
+		left join
+          travel_board tb on tb.travel_no = ts.travel_no
+		where
+		  tm.mem_no = #{mem_no}
+		and
+		  ts.travel_status_yn = 'Y'
+		and
+          tb.travel_no is null
+	  	order by
+ 		  ts.travel_end_date desc
+	</select>
+	
+	<select id="selectOne" parameterType="String" resultType="travelScheduleVO">
+		select
+			travel_no,
+			travel_img_path,
+			travel_name,
+			to_char(travel_start_date, 'yyyy-mm-dd') as travel_start_date,
+			to_char(travel_end_date, 'yyyy-mm-dd') as travel_end_date,
+			travel_status_yn
+		from travel_schedule
+		where travel_no = #{travelNo}
+		and travel_status_yn = 'Y'
+	</select>
+	
+	<update id="delete" parameterType="String">
+		update travel_schedule
+		set travel_status_yn = 'N'
+		where 
+			travel_no = #{travelNo}
+	</update>
+	
+	
+	<!-- ========================== 여행 상세 경로 쿼리 =================================== -->
+	<insert id="insertDetail" parameterType="travelScheduleDetailVO" useGeneratedKeys="true">
+		<selectKey keyProperty="travelScheduleDetailsNo" resultType="String" order="BEFORE">
+			select 'tsd_'||seq_travel_schedule.nextval from dual
+		</selectKey>
+		insert into travel_schedule_details (
+			travel_schedule_details_no, travel_no, id, place_name,
+			place_url, category_group_name, phone, x, y, travel_date
+		) values (
+			#{travelScheduleDetailsNo}, #{travelNo}, #{id}, #{placeName}, #{placeUrl},
+			NVL(#{categoryGroupName}, ''), #{phone}, #{x}, #{y}, #{travelDate}
+		)
+	</insert>
+	
+	<select id="selectList" parameterType="travelScheduleDetailVO" resultType="travelScheduleDetailVO">
+		select 
+			travel_schedule_details_no
+			, travel_no
+			, id
+			, place_name
+			, place_url
+			, category_group_name
+			, phone
+			, x
+			, y
+			, memo
+			, travel_date
+		from 
+			travel_schedule_details
+		where 
+			travel_no = #{travelNo}
+		  and 
+		  	travel_date = #{travelDate}
+		order by
+    		travel_schedule_details_no asc
+	</select>
+	
+	<delete id="deleteList" parameterType="travelScheduleDetailVO">
+		delete from travel_schedule_details where travel_no = #{travelNo} and travel_date = #{travelDate}
+	</delete>
+	
+	<update id="update" parameterType="travelScheduleDetailVO">
+		update 
+			travel_schedule_details
+		set
+			memo = #{memo}
+		where
+			travel_no = #{travelNo}
+		and
+			travel_date = #{travelDate}
+	</update>
+	
+	<select id="getAcc" parameterType="travelAccVO" resultType="travelAccVO">
+		select
+		    ares_no
+		    ,ad.mem_no
+		    ,m.mem_name
+		    ,m.mem_profile_path
+		    ,m.mem_email
+		    ,ar.acc_no
+		    ,ad.acc_name
+		    ,ad.acc_location
+	        ,acc_logitide
+    		,acc_latitude
+		    ,ares_checkin_date
+		    ,ares_checkout_date
+		    ,ares_checkin
+		    ,ares_checkout
+		from
+		    acc_reservation ar
+		left join
+		    accommodation ad on ad.acc_no = ar.acc_no
+		left join
+		    member m on m.mem_no = ad.mem_no
+		where
+		    ar.mem_no = #{memNo}
+		 and
+		    #{travelDate} between ares_checkin_date and ares_checkout_date
+	</select>
+	
+	<select id="getImg" parameterType="String" resultType="fileVO">
+		SELECT att_path
+			FROM (
+			  SELECT att_path, ROWNUM AS rnum
+			  FROM attach
+			  WHERE att_group_no = #{accNo}
+			  AND save_name LIKE 's_%'
+			  ORDER BY CAST(att_no AS INT) ASC
+			)
+			WHERE rnum <![CDATA[<=]]> 5
+	</select>
+	
+</mapper>

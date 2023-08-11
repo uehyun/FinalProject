@@ -1,0 +1,91 @@
+@charset "UTF-8";
+.paymentATAG {
+	z-index: 999;
+}
+
+#small-dialog .mfp-close:hover {
+	background: red;
+}
+
+#sign-in-dialog .mfp-close:hover {
+	background: red;
+}
+
+#small-dialog, #sign-in-dialog {
+    background: #fff;
+    padding: 40px;
+    padding-top: 0;
+    text-align: left;
+    max-width: 610px;
+    margin: 40px auto;
+    position: fixed;
+    box-sizing: border-box;
+    border-radius: 4px;
+    z-index: 9999;
+    top: 200px;
+    left: 34%;
+    width: 50%;
+    border: 1px solid black;
+}
+
+.add-sub-rating {
+	text-align: center;
+}
+
+.leave-rating {
+	height: 24px;
+	float: left;
+	margin-left: 6px;
+}
+
+.sub-ratings-container .leave-rating label {
+	position: relative;
+	font-size: 18px;
+	letter-spacing: 3px;
+}
+
+.sub-ratings-container .leave-rating label:before {
+	content: "\f006";
+	color: lightgray;
+}
+
+.sub-ratings-container .leave-rating input[type="checkbox"]:hover ~ label:before,
+.sub-ratings-container .leave-rating input[type="checkbox"]:checked ~ label:before {
+	content: "\f006";
+}
+
+.sub-ratings-container .leave-rating input[type="checkbox"] ~ label:after {
+	content: "\f005";
+	position: absolute;
+	left: 0;
+	color: #ffc600;
+	opacity: 0;
+	transition: 0.2s;
+}
+
+.sub-ratings-container .leave-rating input[type="checkbox"]:hover ~ label:after,
+.sub-ratings-container .leave-rating input[type="checkbox"]:checked ~ label:after {
+	opacity: 1;
+}
+
+.rating-bars i.tip, .sub-ratings-container i.tip {
+	background: #eaeaea;
+	color: #888;
+	height: 17px;
+	width: 17px;
+	display: inline-block;
+	font-size: 11px;
+}
+
+.rating-bars i .tip-content, .sub-ratings-container i .tip-content {
+	min-width: 220px;
+	max-width: 220px;
+}
+
+.rating-bars  i.tip:after, .sub-ratings-container i.tip:after {
+	line-height: 18px;
+}
+
+input[type="checkbox"] {
+	display: none;	
+}

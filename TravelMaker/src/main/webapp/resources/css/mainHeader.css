@@ -1,0 +1,98 @@
+@charset "UTF-8";
+.SHGnotification-badge {
+    position: relative;
+    display: none;
+}
+
+.SHGnotification-badge::after {
+    content: "";
+    position: absolute;
+  	top: -4px;
+  	right: -7px;
+  	display: inline-block;
+  	width: 6px;
+  	height: 6px;
+  	background-color: red;
+  	border-radius: 50%;
+}
+.user-name span img {
+	height : 100%;
+}
+
+#translation-ul{
+    max-width: 100%;
+    padding: 20px;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+}
+
+.translation-links{
+	border: 1px solid rgb(221, 221, 221);
+    border-radius: 10px;
+    padding: 5px;
+    box-sizing: border-box;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.translation-links:hover {
+	cursor: pointer;
+}
+
+iframe{
+    display: none;
+}
+
+#small-dialog-shg {
+	background: #fff;
+    padding: 40px;
+    padding-top: 0;
+    text-align: left;
+    max-width: 610px;
+    margin: 40px auto;
+    position: relative;
+    box-sizing: border-box;
+    border-radius: 4px;
+}
+
+#small-dialog-shg .mfp-close, small-dialog-shg .mfp-close:hover {
+	color: #fff;
+}
+
+#small-dialog-shg .mfp-close {
+	color: #666;
+	background-color: #e4e4e4;
+	border-radius: 50%;
+	top: 28px;
+	right: 40px;
+	width: 40px;
+	height: 40px;
+}
+
+#small-dialog-shg .mfp-close:hover {
+	color: white;
+	transform: rotate(0);
+	background-color: #66676b;
+	background: red;
+}
+
+#small-dialog-shg .mfp-close::after, #small-dialog-shg .mfp-close::before {
+	top: 4px;
+	height: 9px;
+	font-size: 21px;
+	transition: 0s;
+}
+
+a.send-message-to-owner.button.shg {
+    font-size: 18px;
+    font-weight: 500;
+    padding: 0;
+    margin-top: 12px;
+    margin-bottom: 0;
+    min-width: 0;
+    margin-right: 20px
+}

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<style>
+*{
+	box-sizing: border-box;
+}
+p{
+	margin : 1px;
+	padding : 3px;
+	height : auto;
+}
+.p1{  
+	float: left;
+	width: 70%;
+}
+.p2{
+	float: right;
+	width: 28%; 
+}
+.p3{
+	clear: both;
+}
+input[name=reply]{
+	height: 50px;
+	vertical-align: top;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container mt-3">
+  <h2>Accordion 게시판</h2>
+  
+  <div id="accordion">
+    <div class="card">
+      <div class="card-header">
+        <a class="btn" data-bs-toggle="collapse" href="#collapse20">
+          제목20
+        </a>
+      </div>
+      <div id="collapse20" class="collapse show" data-bs-parent="#accordion">
+        <div class="card-body">
+        	<p class="p1">
+        		작성자<span id="wr">김영희</span>&nbsp;&nbsp;&nbsp; 
+        		이메일<span id="em">dm097@naver.com</span>&nbsp;&nbsp;&nbsp;
+        		날짜<span id="da">2023.04.03</span>&nbsp;&nbsp;&nbsp; 
+        		조회수<span id="hit">0</span>&nbsp;&nbsp;&nbsp; 
+        	</p>
+        	
+        	<p class="p2">
+        		<input type="button" style="float: right;" name="delete" class="action" value="삭제">
+        		<input type="button" style="float: right;" name="modify" class="action" value="수정">
+        	</p>
+        	
+        	<p class="p3">
+        		여기에 내용출력할것이다.
+        	</p>
+        		
+        	<p class="p4">
+        		<textarea rows="" cols="50"></textarea>
+        		<input type="button" name="reply" class="action" value="등록">
+        	</p>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <a class="collapsed btn" data-bs-toggle="collapse" href="#collapseTwo">
+        Collapsible Group Item #2
+      </a>
+      </div>
+      <div id="collapseTwo" class="collapse" data-bs-parent="#accordion">
+        <div class="card-body">
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <a class="collapsed btn" data-bs-toggle="collapse" href="#collapseThree">
+          Collapsible Group Item #3
+        </a>
+      </div>
+      <div id="collapseThree" class="collapse" data-bs-parent="#accordion">
+        <div class="card-body">
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+</body>
+</html>

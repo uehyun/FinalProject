@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.travelmaker.admin.mapper.AdminInquiryMapper">
+
+	<insert id="register" parameterType="inquiryVO" useGeneratedKeys="true">
+		<selectKey keyProperty="inqBoardNo" resultType="String" order="BEFORE">
+			select seq_inboard.nextval from dual			
+		</selectKey>
+		insert into inquiry_board( 
+			inq_board_no, inq_board_del_yn, inq_board_title, inq_board_content, 
+			inq_board_hit, inq_board_reg_date, inq_board_writer
+		)values(
+			#{inqBoardNo}, 'N', #{inqBoardTitle}, #{inqBoardContent}, 0, sysdate, #{inqBoardWriter}
+		)
+	</insert>
+	
+	<select id="list" resultType="inquiryVO">
+		select 
+			inq_board_no, inq_board_title, inq_board_reg_date, inq_board_writer
+		from 
+			inquiry_board
+		where
+			inq_board_del_yn = 'N'
+		order by inq_board_no desc
+	</select>
+	
+	<select id="mylist" resultType="inquiryVO" parameterType="String">
+		select 
+			inq_board_no, inq_board_title, inq_board_reg_date, inq_board_writer
+		from 
+			inquiry_board
+		where
+			inq_board_writer = #{inqBoardWriter}
+	</select>
+	
+	<select id="detail" parameterType="String" resultType="inquiryVO">
+		select 
+			inq_board_no, inq_board_title, inq_board_content, inq_board_hit, inq_board_reg_date, inq_board_writer
+		from inquiry_board
+		where inq_board_no = #{inqBoardNo} and inq_board_del_yn = 'N'
+	</select>
+	
+	<update id="update" parameterType="inquiryVO">
+		update inquiry_board
+		set 
+			inq_board_title = #{inqBoardTitle},
+			inq_board_content = #{inqBoardContent},
+			inq_board_mod_date = sysdate
+		where inq_board_no = #{inqBoardNo} and inq_board_del_yn = 'N'
+	</update>
+	
+	<delete id="delete">
+		update inquiry_board
+		set 
+			inq_board_del_yn = 'Y',
+			inq_board_del_date = sysdate
+		where inq_board_no = #{inqBoardNo} and inq_board_writer = #{memNo}
+	</delete>
+	
+	<select id="selectInboardCount" parameterType="pagingVO" resultType="int">
+		select
+			count(inq_board_no)
+		from 
+			inquiry_board, member
+		where 1=1
+		and 
+			mem_no = inq_board_writer
+		<if test="searchType != null and searchType == 'title'">
+			and (inq_board_title like '%'||#{searchWord}||'%')
+		</if>
+		<if test="searchType != null and searchType == 'memNo'">
+			and (inq_board_writer like '%'||#{searchWord}||'%')
+		</if>
+		<if test="searchType != null and searchType == 'writer'">
+			and (mem_name like '%'||#{searchWord}||'%')
+		</if>
+		and inq_board_del_yn = 'N'
+	</select>
+
+	<select id="selectInboardList" parameterType="pagingVO" resultType="inquiryVO">
+		select
+			b.*
+		from(
+			select
+				a.*, row_number() over (order by a.inq_board_no desc) rnum
+			from(
+				select
+					inq_board_no
+				  , inq_board_title
+				  , inq_board_content
+				  , inq_board_hit, to_char(inq_board_reg_date, 'yyyy-mm-dd HH24:mm') as inq_board_reg_date
+				  , inq_board_mod_date
+				  , inq_board_del_date
+				  , inq_att_group_no
+				  , inq_board_writer
+				  , mem_name
+				from 
+					inquiry_board, member
+				where 1=1
+				
+				and inq_board_del_yn = 'N'
+				and mem_no = inq_board_writer
+				
+				<if test="searchType != null and searchType == 'title'">
+					and (inq_board_title like '%'||#{searchWord}||'%')
+				</if>
+				<if test="searchType != null and searchType == 'memNo'">
+					and (inq_board_writer like '%'||#{searchWord}||'%')
+				</if>
+				<if test="searchType != null and searchType == 'writer'">
+					and (mem_name like '%'||#{searchWord}||'%')
+				</if>
+				order by inq_board_no desc
+			) a
+		) b
+		<![CDATA[
+			where b.rnum >= #{startRow} and b.rnum <= #{endRow}
+		]]>
+	</select>
+	
+</mapper>
+
+
+
+
+
+

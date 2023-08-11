@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.travelmaker.member.mapper.MemberWishMapper">
+
+	<select id="selectWishlistByaccNo" parameterType="String" resultType="wishlistCategoryVO">
+		SELECT 
+		    wc.WISHLIST_CATEGORY_NO, 
+		    wc.MEM_NO, 
+		    wc.WISHLIST_CATEGORY_NAME,
+		    MIN(a.att_path) as attPath
+		FROM 
+		    WISHLIST wl
+		RIGHT JOIN WISHLIST_CATEGORY wc ON wl.WISHLIST_CATEGORY_NO = wc.WISHLIST_CATEGORY_NO
+		LEFT JOIN attach a ON wl.acc_no = a.att_group_no
+		WHERE 
+		    wc.MEM_NO = #{memNo}
+		GROUP BY 
+		    wc.WISHLIST_CATEGORY_NO, wc.MEM_NO, wc.WISHLIST_CATEGORY_NAME
+	</select>
+		
+	
+	<resultMap type="wishlistVO" id="wishlistDetail">
+		<id property="accNo" column="acc_no"/>
+		
+		<result property="wishlistCategoryNo" column="wishlist_category_no"/>
+		<result property="accNo" column="acc_no"/>
+		<result property="wishlistMemo" column="wishlist_memo"/>
+		<result property="wishlistCategoryName" column="wishlist_category_name"/>
+		
+		<collection property="files" resultMap="fileMap"></collection>
+	</resultMap>
+	
+	<resultMap type="fileVO" id="fileMap">
+		<result property="attGroupNo" column="att_group_no"/>
+		<result property="saveName" column="save_name"/>
+		<result property="attPath" column="att_path"/>
+	</resultMap>
+	
+	<select id="selectWishlistDetail" parameterType="String" resultMap="wishlistDetail">
+		select 
+		    w.*,
+		    a.*
+		from wishlist w
+		left join attach a on(w.acc_no = a.att_group_no)
+		where w.wishlist_category_no like #{wishlistCategoryNo} and a.save_name like 's_%'
+		order by to_number(a.att_no)
+	</select>
+	
+	<select id="selectWishlistCategory" parameterType="String" resultType="wishlistCategoryVO">
+		select
+		    WISHLIST_CATEGORY_NO, 
+		    MEM_NO, 
+		    WISHLIST_CATEGORY_NAME
+		from WISHLIST_CATEGORY
+		where WISHLIST_CATEGORY_NO like #{wishlistCategoryNo}
+	</select>
+	
+ 	<update id="updateWishlist" parameterType="wishlistVO">
+ 		update WISHLIST
+		set WISHLIST_MEMO = #{wishlistMemo}
+		where WISHLIST_CATEGORY_NO = #{wishlistCategoryNo} and ACC_NO = #{accNo}
+ 	</update>
+
+	<update id="updateNullWishlist" parameterType="wishlistVO">
+ 		update WISHLIST
+		set WISHLIST_MEMO = NULL
+		where WISHLIST_CATEGORY_NO = #{wishlistCategoryNo} and ACC_NO = #{accNo}
+	</update>
+</mapper>

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.travelmaker.payment.mapper.PaymentMapper">
+	<sql id="withFilter">
+		<if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+			AND to_char(payment_date, 'yyyy-mm-dd') BETWEEN #{startDate} AND #{endDate}
+		</if>
+	</sql>
+	
+	<select id="selectAllPayment" parameterType="map" resultType="map">
+        <if test="filterType != 'freservation'">
+			SELECT DISTINCT
+				payment_no									   AS paymentno
+				, freservation_no							   AS fresno
+				, a.ares_no									   AS aresno
+				, c.mem_no									   AS hostno
+				, a.acc_no									   AS accno
+				, payment_total_price						   AS paymenttotalprice
+				, to_char(payment_date, 'yyyy-mm-dd')		   AS paymentdate
+	            , c.acc_name  								   AS typename
+	            , to_char(b.ares_checkin_date, 'yyyy-mm-dd')   AS starttime
+	            , to_char(b.ares_checkout_date, 'yyyy-mm-dd')  AS endtime
+	            , b.ARES_GUEST_COUNT    					   AS numberofpeople
+	            , d.mem_name								   AS hostname
+	            , d.mem_email								   AS hostemail
+	            , d.mem_phone								   AS hostphone
+	            , c.acc_att_group_no						   AS attpath
+			  FROM 
+			  	payment a inner join acc_reservation b ON(a.ares_no = b.ares_no)
+			  			  inner join accommodation c   ON(a.acc_no = c.acc_no)
+			  			  inner join member d          ON(c.mem_no = d.mem_no)
+			 WHERE a.mem_no = #{memNo} <include refid="withFilter"></include>
+			 <if test="filterType != 'all'">
+			 	ORDER BY paymentdate desc
+			 </if>
+		</if>
+		
+		<if test="filterType == 'all'">
+			UNION ALL
+		</if>
+		
+		<if test="filterType != 'ares'">
+			SELECT DISTINCT
+	            payment_no						 				AS paymentno
+				, a.freservation_no				 				AS fresno
+				, ares_no						 				AS aresno
+				, a.mem_no						 				AS hostno
+				, acc_no						 				AS accno
+				, payment_total_price							AS paymenttotalprice
+				, to_char(payment_date, 'yyyy-mm-dd')			AS paymentdate
+	            , e.flight_airline 	   			 				AS typename
+	            , to_char(e.flight_depart_time, 'yyyy-mm-dd') 	AS starttime
+	            , to_char(e.flight_arrive_time, 'yyyy-mm-dd') 	AS endtime
+	            , b.freservation_passenger_count 				AS numberofpeople
+	            , f.mem_name									AS hostname
+	            , f.mem_email					 				AS hostemail
+	            , f.mem_phone					 				AS hostphone
+	            , 'notatt'										AS attpath
+	           FROM 
+	           	payment a inner join flight_reservation b      ON(a.freservation_no = b.freservation_no)
+	           			  inner join flight_reservation_seat c ON(b.freservation_no = c.freservation_no)
+	           			  inner join flight_seat d 			   ON(c.flight_no = d.flight_no)
+	           			  inner join flight e 				   ON(d.flight_no = e.flight_no)
+	           			  inner join member f				   ON(b.mem_no = f.mem_no)
+	          WHERE a.mem_no = #{memNo} <include refid="withFilter"></include>
+	          ORDER BY paymentdate desc
+		</if>
+	</select>
+	
+	<select id="selectAccReceipt" parameterType="string" resultType="map">
+		SELECT
+		    payment_no                					  AS paymentno
+		    , to_char(payment_date, 'yyyy-mm-dd')   	  AS paymentdate
+		    , a.acc_no               					  AS accno
+		    , c.acc_name              					  AS accname
+		    , to_char(b.ares_checkin_date, 'yyyy-mm-dd')  AS checkindate
+		    , to_char(b.ares_checkout_date, 'yyyy-mm-dd') AS checkoutdate
+		    , ares_checkin								  AS checkin
+		    , ares_checkout								  AS checkout
+		    , a.ares_no               					  AS aresno
+		    , d.mem_name              					  AS guestname
+		    , d.mem_email								  AS guestemail
+		    , d.mem_phone								  AS guserphone
+		    , b.ares_per_price							  AS perprice
+		    , b.ares_acc_date_count   					  AS datecount
+		    , b.ares_total_price    	  				  AS charge 
+		    , b.ares_total_price * 0.06				  	  AS fee
+		    , payment_total_price						  AS totalprice
+		    , c.acc_att_group_no   						  AS groupno
+		    , b.ares_extra_price						  AS extraprice
+		  FROM  
+		    payment a inner join acc_reservation b ON(a.ares_no = b.ares_no)
+		              inner join accommodation c   ON(a.acc_no = c.acc_no)
+		              inner join member d 		   ON(a.mem_no = d.mem_no)
+		 WHERE payment_no = #{paymentNo}
+	</select>
+	
+	<select id="getHost" parameterType="string" resultType="map">
+		SELECT
+			b.mem_no	  AS hostno
+			, b.mem_name  AS hostname
+			, b.mem_email AS hostemail
+			, b.mem_phone AS hostphone
+		  FROM accommodation a inner join member b ON(a.mem_no = b.mem_no)
+		 WHERE acc_no = #{accNo}
+	</select>
+	
+	<select id="selectFlightReceipt" parameterType="string" resultType="map">
+		SELECT DISTINCT
+		    a.payment_no											AS paymentno
+		    , a.mem_no												AS memno
+		    , f.mem_name											AS memname
+		    , a.freservation_no										AS freservationno
+		    , a.payment_total_price									AS totalprice
+		    , to_char(a.payment_date, 'yyyy-mm-dd')					AS paymentdate
+		    , b.freservation_passenger_count						AS passengercount
+		    , e.depart_airport										AS departairport
+		    , e.arrive_airport										AS arriveairport
+		    , e.flight_depart_time								    AS departtime
+		    , e.flight_arrive_time									AS arrivetime
+		    , e.flight_airline										AS flightairline
+		    , e.flight_model										AS flightmodel
+		    ,EXTRACT(DAY FROM (e.flight_arrive_time - e.flight_depart_time)) * 24 +
+			 EXTRACT(HOUR FROM (e.flight_arrive_time - e.flight_depart_time)) 	AS durationhour
+		    ,EXTRACT(MINUTE FROM (e.flight_arrive_time - e.flight_depart_time)) AS durationminute
+		  FROM payment a inner join flight_reservation b      on(a.freservation_no = b.freservation_no)
+		               	 inner join flight_reservation_seat c on(a.freservation_no = c.freservation_no)
+		               	 inner join flight_seat d             on(c.flight_no = d.flight_no)
+		               	 inner join flight e 				  on(d.flight_no = e.flight_no)
+		               	 inner join member f 				  on(a.mem_no = f.mem_no)
+		 WHERE payment_no = #{paymentNo}
+	</select>
+	
+	<select id="selectPassenger" parameterType="string" resultType="map">
+		SELECT 
+		    UPPER(passenger_firstname||' '||passenger_lastname) AS name
+		    , passenger_phone									AS phone
+		    , passenger_email									AS email
+		  FROM payment a inner join flight_reservation b    ON(a.freservation_no = b.freservation_no)
+		               inner join flight_reservation_seat c ON(a.freservation_no = c.freservation_no)
+		               inner join passenger d 				ON(c.passenger_no = d.passenger_no)
+		 WHERE payment_no = ${paymentNo}
+	</select>
+</mapper>

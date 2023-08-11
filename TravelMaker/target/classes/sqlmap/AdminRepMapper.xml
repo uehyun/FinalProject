@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.travelmaker.admin.mapper.AdminRepMapper">
+	
+	<insert id="insert" parameterType="ireplyVO" useGeneratedKeys="true">
+		<selectKey keyProperty="ireplyNo" resultType="String" order="BEFORE">
+			select seq_reply.nextval from dual			
+		</selectKey>
+		insert into inboard_reply(
+			ireply_no, inq_board_no, ireply_writer, ireply_del_status, ireply_content, ireply_reg_date
+		)values(
+			#{ireplyNo}, #{inqBoardNo}, #{ireplyWriter},'N', #{ireplyContent}, sysdate
+		)
+	</insert>
+	
+	<select id="list" parameterType="String" resultType="ireplyVO">
+		select
+			inq_board_no
+			, ireply_no
+			, ireply_writer
+			, ireply_content
+			, to_char(ireply_reg_date, 'yyyy-mm-dd HH24:mm') as ireply_reg_date
+		from
+			inboard_reply
+		where
+			inq_board_no = #{inqBoardNo}
+		and
+			ireply_del_status = 'N'
+		order by ireply_no
+	</select>
+	
+	<select id="replyCnt" parameterType="String" resultType="int">
+		select 
+			count(ireply_no) as replycount
+			from inboard_reply
+			where ireply_del_status = 'N' and inq_board_no = #{inqBoardNo}
+	</select>
+	
+<!-- 	<update id="remove" parameterType="String"> -->
+<!-- 		update inboard_reply -->
+<!-- 			set -->
+<!-- 				ireply_del_status = 'Y' -->
+<!-- 			where ireply_no = #{ireplyNo} -->
+<!-- 	</update> -->
+	
+	<update id="delete" parameterType="ireplyVO">
+		update
+			inboard_reply 
+		set
+			ireply_del_status = 'Y',
+			ireply_del_date = sysdate
+		where
+			ireply_no = #{ireplyNo}
+	</update>
+	
+<!-- 	<update id="modify" parameterType="ireplyVO"> -->
+<!-- 		update inboard_reply -->
+<!-- 			set -->
+<!-- 				ireply_content = #{ireplyContent}, -->
+<!-- 				ireply_mod_date = sysdate -->
+<!-- 			where ireply_no = #{ireplyNo} and mem_no = #{memNo} -->
+<!-- 	</update> -->
+	
+	<update id="update" parameterType="ireplyVO">
+		update
+			inboard_reply
+		set
+			ireply_content = #{ireplyContent},
+			ireply_mod_date = sysdate
+		where ireply_no = #{ireplyNo} and ireply_writer = #{ireplyWriter}
+	</update>
+	
+	
+<!-- 	<select id="list" resultType="faqVO"> -->
+<!-- 		select -->
+<!-- 			faq_board_no, faq_board_title, faq_board_content, faq_board_hit, faq_board_reg_date, faq_board_mod_date, faq_board_del_date, -->
+<!-- 			faq_board_del_yn, faq_att_group_no -->
+<!-- 		from faq_board -->
+<!-- 		order by faq_board_no desc -->
+<!-- 	</select> -->
+	
+<!-- 	<select id="detail" parameterType="String" resultType="faqVO"> -->
+<!-- 		select -->
+<!-- 			faq_board_no, faq_board_title, faq_board_content, faq_board_hit, faq_board_reg_date, faq_board_mod_date, faq_board_del_date, -->
+<!-- 			faq_board_del_yn -->
+<!-- 		from faq_board -->
+<!-- 		where faq_board_no=#{faqBoardNo} -->
+<!-- 	</select> -->
+	
+<!-- 	<delete id="deleteOne" parameterType="String"> -->
+<!-- 		delete from faq_board where faq_board_no = #{faqBoardNo} -->
+<!-- 	</delete> -->
+	
+	
+<!-- 	<update id="update" parameterType="faqVO"> -->
+<!-- 		update faq_board -->
+<!-- 		set  -->
+<!-- 			faq_board_title = #{faqBoardTitle}, -->
+<!-- 			faq_board_content = #{faqBoardContent}, -->
+<!-- 			faq_board_mod_date = sysdate -->
+<!-- 		where faq_board_no=#{faqBoardNo} -->
+<!-- 	</update> -->
+	
+</mapper>
+
+
+
+
+
+

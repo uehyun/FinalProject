@@ -1,0 +1,122 @@
+@charset "UTF-8";
+.dashboard-wrapper {
+    width: 100%;
+    height: 800px;
+    display: flex;
+}
+
+.dashboard-content {
+    flex: 1;
+    height: 800px;
+    margin: 0;
+    padding: 20px;
+    overflow: scroll;
+    position: relative;
+    transition: transform 0.3s ease-out, width 0.3s ease-out;
+}
+.dashboard-content::-webkit-scrollbar,
+.reservation-detail::-webkit-scrollbar {
+    display: none;
+}
+
+.messages-container,
+.reservation-div {
+    display: inline-block;
+    vertical-align: top;
+	width: 100%;
+	height: 750px;
+}
+
+#messageTextArea::-webkit-scrollbar {
+	display: none;
+}
+
+.reservation-div {
+    width: 30%;
+    height: 800px;
+    background-color: white;
+    padding: 20px;
+    transition: right 0.3s ease-out, width 0.3s ease-out;
+    display: flex;
+}
+
+.reservation-div-open .reservation-div {
+    width: 30%;
+}
+
+.reservation-div-open .dashboard-content {
+    width: 70%;
+}
+
+.reservation-div .content {
+    display: block;
+    height: 100%;
+    transition: opacity 0.3s ease-out;
+}
+
+.reservation-div-open .reservation-div .content {
+    opacity: 1;
+}
+
+.reservation-div .content.hidden {
+    opacity: 0;
+}
+
+/* 예약 div css */
+.reservation-detail {
+	border-top : 1px solid gainsboro;
+	border-bottom : 0.5px solid gainsboro;
+	font-weight: bold;
+	height: 700px;
+	overflow : scroll;
+}
+
+.content {
+	border-radius : 5px;
+	border : 1px solid rgb(221,221,221);
+	padding : 20px;
+}
+.receipt-button {
+	border-top : 0.5px solid gainsboro;
+	border-bottom : 1px solid gainsboro;
+	font-weight: bold;
+}
+.receipt-button:hover,
+.acc-button:hover,
+.payment-div:hover {
+    background: rgba(224, 221, 221, 0.938);
+    width : auto; 
+    cursor: pointer;
+}
+.payment-div {
+	border: 1px solid rgb(221,221,221); 
+	border-radius : 10px; 
+	width: auto; 
+	height: 50px; 
+	text-align : center; 
+	display: flex; 
+	justify-content: center; 
+	align-items: center;
+}
+.line {
+	border : 2px solid gainsboro;
+}
+
+/* 채팅 영역 */
+.message-bubble {
+	float : left;
+	width : 52%;
+}
+
+.checkTime {
+    border-right: 1px solid gainsboro;
+    width: 50%;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.checkTime:nth-child(2) {
+	border-right: none;
+}
