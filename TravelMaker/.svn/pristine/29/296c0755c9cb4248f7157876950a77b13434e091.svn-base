@@ -1,8 +1,0 @@
-package kr.or.ddit.service.oauth;
-
-import java.util.Map;
-
-public interface IKakaoService {
-	public String getToken(String code);
-	public Map<String, Object> getUserInfo(String access_token);
-}
